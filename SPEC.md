@@ -131,7 +131,7 @@ Appliqué dans les DEUX modes (avant Ollama en mode amélioré) :
 
 - Fichier `userData/dictionary.json`, lisible et éditable à la main :
 ```json
-{ "entries": [ { "correct": "E-Koun", "variants": ["ékoune", "e koun", "ekoun"] } ] }
+{ "entries": [ { "correct": "Awa Diallo", "variants": ["awa dialo", "ava diallo", "awa djalo"] } ] }
 ```
 - Application après le nettoyage (dans les deux modes), AVANT l'insertion :
   - Normalisation : minuscules, accents retirés (NFD), espaces/traits d'union/apostrophes retirés.

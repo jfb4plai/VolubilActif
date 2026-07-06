@@ -121,12 +121,14 @@ une petite mention "mode simple utilisé" dans la fenêtre d'état.
 ## Le dictionnaire personnel
 
 Whisper (le moteur de transcription) déforme parfois les noms propres ou les
-mots inhabituels : "E-Koun" devient "ekoune", "KléIA-Solutions" devient
-"clé à solution"... Le dictionnaire personnel corrige ça.
+mots inhabituels : un prénom comme "Awa Diallo" peut devenir "ava dialo", le
+nom d'une entreprise ou un mot technique peut lui aussi être mal reconnu à
+chaque fois. Le dictionnaire personnel corrige ça.
 
 - Va dans l'onglet **Dictionnaire** de la fenêtre principale.
-- Ajoute la forme correcte (ex : "E-Koun") et les variantes que tu as vu
-  apparaître (ex : "ekoune, e koun, ekoun"), séparées par des virgules.
+- Ajoute la forme correcte (ex : "Awa Diallo") et les variantes que tu as vu
+  apparaître (ex : "awa dialo, ava diallo, awa djalo"), séparées par des
+  virgules.
 - À partir de là, chaque dictée est corrigée automatiquement, même si la
   variante prononcée n'est pas exactement l'une de celles que tu as tapées
   (une tolérance à l'erreur est intégrée).
