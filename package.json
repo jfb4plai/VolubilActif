@@ -1,7 +1,7 @@
 {
   "name": "volubil-ia",
   "productName": "Volubil-IA",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Dictee vocale 100% locale pour Windows et macOS, inspiree de Wispr Flow",
   "main": "main/main.js",
   "scripts": {
