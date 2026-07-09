@@ -20,7 +20,7 @@ const { Settings } = require('./settings');
 const { History } = require('./history');
 const { Dictionary } = require('./dictionary');
 const whisper = require('./whisper');
-const { nettoyerSimple, appliquerPonctuationDictee } = require('./cleanup-simple');
+const { nettoyerSimple, appliquerPonctuationDictee, retirerHallucinations } = require('./cleanup-simple');
 const { nettoyerAmeliore, detecterOllama } = require('./ollama');
 const { insererTexte } = require('./inserter');
 const recorderBridge = require('./recorder-bridge');
@@ -529,9 +529,12 @@ async function traiterAudio(arrayBuffer, sampleRate) {
 
 function estTexteVideOuBruit(texte) {
   if (!texte) return true;
-  const nettoye = texte
+  // Les hallucinations de Whisper sur le silence ("Sous-titrage Société
+  // Radio-Canada"...) comptent comme du silence : rien ne doit etre insere.
+  const nettoye = retirerHallucinations(texte)
     .replace(/\[BLANK_AUDIO\]/gi, '')
     .replace(/\.\.\./g, '')
+    .replace(/[.,!?\s]+/g, ' ')
     .trim();
   return nettoye.length === 0;
 }

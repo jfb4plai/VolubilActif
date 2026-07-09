@@ -11,6 +11,24 @@ const ARTEFACTS = [
   /\[[^\]]*sous-titr[^\]]*\]/gi,
 ];
 
+// Hallucinations connues de Whisper sur le silence : entraine sur des
+// sous-titres TV, le modele produit ces mentions quand il n'entend rien.
+// Une dictee qui ne contient que ca doit etre traitee comme du silence.
+const HALLUCINATIONS = [
+  /sous-?titrage\s+(?:société\s+)?radio-?canada/gi,
+  /sous-?titrage\s+st'?\s*501/gi,
+  /sous-?titres?\s+(?:réalisés?|faits?)\s+par\s+la\s+communauté\s+d[’']amara\.org/gi,
+  /sous-?titrage\s+(?:par\s+)?soustitreur\.com/gi,
+];
+
+function retirerHallucinations(texte) {
+  let resultat = texte;
+  for (const motif of HALLUCINATIONS) {
+    resultat = resultat.replace(motif, '');
+  }
+  return resultat;
+}
+
 function nettoyerHesitations(texte) {
   let resultat = texte;
   for (const motif of HESITATIONS) {
@@ -145,6 +163,7 @@ function appliquerPonctuationDictee(texte) {
 function nettoyerSimple(texteBrut) {
   if (!texteBrut) return '';
   let texte = texteBrut;
+  texte = retirerHallucinations(texte);
   texte = supprimerArtefacts(texte);
   texte = nettoyerHesitations(texte);
   texte = reduireDoublons(texte);
@@ -153,4 +172,4 @@ function nettoyerSimple(texteBrut) {
   return texte;
 }
 
-module.exports = { nettoyerSimple, appliquerPonctuationDictee };
+module.exports = { nettoyerSimple, appliquerPonctuationDictee, retirerHallucinations };
