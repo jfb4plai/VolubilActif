@@ -292,6 +292,45 @@ function changerModeExamen(actif) {
   if (fenetrePrincipale) fenetrePrincipale.webContents.send('history:updated');
 }
 
+// Barre de menus : celle par defaut d'Electron est en anglais (File, Edit...).
+// Sur Windows et Linux, l'app n'en a pas besoin : on la retire. Sur macOS,
+// les raccourcis Cmd+C/V passent par le menu : on fournit un menu en francais.
+function construireMenuApplication() {
+  if (process.platform !== 'darwin') return null;
+  return Menu.buildFromTemplate([
+    {
+      label: 'VolubilActif',
+      submenu: [
+        { role: 'about', label: 'À propos de VolubilActif' },
+        { type: 'separator' },
+        { role: 'hide', label: 'Masquer VolubilActif' },
+        { role: 'unhide', label: 'Tout afficher' },
+        { type: 'separator' },
+        { role: 'quit', label: 'Quitter VolubilActif' },
+      ],
+    },
+    {
+      label: 'Édition',
+      submenu: [
+        { role: 'undo', label: 'Annuler' },
+        { role: 'redo', label: 'Rétablir' },
+        { type: 'separator' },
+        { role: 'cut', label: 'Couper' },
+        { role: 'copy', label: 'Copier' },
+        { role: 'paste', label: 'Coller' },
+        { role: 'selectAll', label: 'Tout sélectionner' },
+      ],
+    },
+    {
+      label: 'Fenêtre',
+      submenu: [
+        { role: 'minimize', label: 'Réduire' },
+        { role: 'close', label: 'Fermer' },
+      ],
+    },
+  ]);
+}
+
 function creerTray() {
   tray = new Tray(cheminIcone());
   tray.setToolTip('VolubilActif');
@@ -671,6 +710,7 @@ app.whenReady().then(async () => {
   history = new History(app.getPath('userData'), settings.get('historyRetention'));
   dictionary = new Dictionary(app.getPath('userData'));
 
+  Menu.setApplicationMenu(construireMenuApplication());
   enregistrerGestionnairesIpc();
   creerTray();
   creerFenetreRecorder();
