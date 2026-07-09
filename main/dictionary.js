@@ -95,6 +95,46 @@ class Dictionary {
     return donnees.entries;
   }
 
+  // Fusionne des entrees importees (partage enseignant vers eleves) : une forme
+  // correcte deja presente recupere les nouvelles variantes, les autres entrees
+  // sont ajoutees. Rien n'est ecrase.
+  fusionner(nouvellesEntrees) {
+    const donnees = this._charger();
+    let ajoutees = 0;
+    let completees = 0;
+
+    for (const entree of nouvellesEntrees || []) {
+      if (!entree || typeof entree.correct !== 'string' || !entree.correct.trim()) continue;
+      const correct = entree.correct.trim();
+      const variants = Array.isArray(entree.variants)
+        ? entree.variants.filter((v) => typeof v === 'string' && v.trim()).map((v) => v.trim())
+        : [];
+
+      const existante = donnees.entries.find(
+        (e) => normaliser(e.correct || '') === normaliser(correct)
+      );
+      if (existante) {
+        const connues = new Set((existante.variants || []).map(normaliser));
+        let modifie = false;
+        for (const variante of variants) {
+          if (!connues.has(normaliser(variante))) {
+            existante.variants = existante.variants || [];
+            existante.variants.push(variante);
+            connues.add(normaliser(variante));
+            modifie = true;
+          }
+        }
+        if (modifie) completees++;
+      } else {
+        donnees.entries.push({ correct, variants });
+        ajoutees++;
+      }
+    }
+
+    this._ecrireAtomique(donnees);
+    return { ajoutees, completees, total: donnees.entries.length };
+  }
+
   // Construit la table normalise -> forme correcte, a partir des entrees actuelles.
   _construireTable() {
     const entries = this.getAll();

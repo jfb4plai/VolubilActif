@@ -9,6 +9,8 @@ const { spawn } = require('child_process');
 const TAILLES_MODELES = {
   base: { fichier: 'ggml-base.bin', octetsAttendusMin: 100 * 1024 * 1024 },
   small: { fichier: 'ggml-small.bin', octetsAttendusMin: 400 * 1024 * 1024 },
+  // large-v3-turbo quantise q5_0 : le plus precis en francais, taille contenue.
+  turbo: { fichier: 'ggml-large-v3-turbo-q5_0.bin', octetsAttendusMin: 500 * 1024 * 1024 },
 };
 
 const TIMEOUT_TRANSCRIPTION_MS = 120000;
@@ -145,8 +147,8 @@ function cheminSansAccent(cheminOriginal, prefixe) {
 
   const dossierSecours =
     process.platform === 'win32'
-      ? path.join(process.env.WINDIR || 'C:\\Windows', 'Temp', 'volubil-ia-ascii')
-      : path.join(os.tmpdir(), 'volubil-ia-ascii');
+      ? path.join(process.env.WINDIR || 'C:\\Windows', 'Temp', 'volubilactif-ascii')
+      : path.join(os.tmpdir(), 'volubilactif-ascii');
 
   fs.mkdirSync(dossierSecours, { recursive: true });
   const cheminCopie = path.join(dossierSecours, `${prefixe}${path.extname(cheminOriginal)}`);

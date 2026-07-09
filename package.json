@@ -1,8 +1,8 @@
 {
-  "name": "volubil-ia",
-  "productName": "Volubil-IA",
-  "version": "1.0.1",
-  "description": "Dictee vocale 100% locale pour Windows et macOS, inspiree de Wispr Flow",
+  "name": "volubilactif",
+  "productName": "VolubilActif",
+  "version": "1.1.0",
+  "description": "Dictee vocale 100% locale pour eleves DYS (FWB), adaptation PLAI de Volubil-IA",
   "main": "main/main.js",
   "scripts": {
     "start": "electron .",
@@ -13,11 +13,11 @@
   "engines": {
     "node": ">=18"
   },
-  "author": "Anne-Cecile Le Dain",
+  "author": "Jean-Francois Beguin (PLAI), d'apres Volubil-IA d'Anne-Cecile Le Dain",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/annece29-netizen/Volubil-IA.git"
+    "url": "https://github.com/jfb4plai/VolubilActif.git"
   },
   "dependencies": {},
   "devDependencies": {
@@ -25,8 +25,8 @@
     "electron-builder": "^25.1.8"
   },
   "build": {
-    "appId": "fr.annececile.volubil-ia",
-    "productName": "Volubil-IA",
+    "appId": "be.plai.volubilactif",
+    "productName": "VolubilActif",
     "files": [
       "main/**/*",
       "renderer/**/*",
@@ -44,7 +44,7 @@
     },
     "nsis": {
       "oneClick": true,
-      "artifactName": "Volubil-IA-Windows-${version}.${ext}"
+      "artifactName": "VolubilActif-Windows-${version}.${ext}"
     },
     "mac": {
       "target": [
@@ -56,7 +56,7 @@
         }
       ],
       "category": "public.app-category.productivity",
-      "artifactName": "Volubil-IA-Mac-${version}.${ext}",
+      "artifactName": "VolubilActif-Mac-${version}.${ext}",
       "extraResources": [
         {
           "from": "vendor/mac",
@@ -64,7 +64,7 @@
         }
       ],
       "extendInfo": {
-        "NSMicrophoneUsageDescription": "Volubil-IA utilise le micro pour la dictee vocale, entierement en local."
+        "NSMicrophoneUsageDescription": "VolubilActif utilise le micro pour la dictee vocale, entierement en local."
       }
     }
   }

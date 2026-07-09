@@ -10,13 +10,18 @@ function defautsParPlateforme() {
 
 const VALEURS_PAR_DEFAUT = {
   onboardingDone: false,
-  userName: 'Anne-Cécile',
+  userName: '',
   hotkey: defautsParPlateforme(),
   modelSize: 'base',
   language: 'fr',
   mode: 'simple',
   ollamaModel: 'qwen2.5:3b',
   ollamaUrl: 'http://127.0.0.1:11434',
+  // 'normal' : historique sur disque (500 entrees max).
+  // 'prive' : rien sur le disque, tout s'efface en quittant (machine partagee).
+  historyRetention: 'normal',
+  // Mode examen : transcription brute + nettoyage par regles, jamais de LLM.
+  examMode: false,
 };
 
 class Settings {

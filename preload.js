@@ -32,6 +32,8 @@ contextBridge.exposeInMainWorld('volubil', {
   ajouterEntreeDictionnaire: (entree) => ipcRenderer.invoke('dictionary:add', entree),
   modifierEntreeDictionnaire: (index, entree) => ipcRenderer.invoke('dictionary:update', index, entree),
   supprimerEntreeDictionnaire: (index) => ipcRenderer.invoke('dictionary:remove', index),
+  exporterDictionnaire: () => ipcRenderer.invoke('dictionary:export'),
+  importerDictionnaire: () => ipcRenderer.invoke('dictionary:import'),
 
   // Correction rapide.
   ouvrirCorrection: (entree) => ipcRenderer.invoke('correction:open', entree),

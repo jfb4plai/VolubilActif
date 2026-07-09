@@ -6,9 +6,35 @@ const path = require('path');
 const LIMITE_ENTREES = 500;
 
 class History {
-  constructor(userDataPath) {
+  // retention : 'normal' (fichier sur disque) ou 'prive' (memoire seule,
+  // rien n'est ecrit et un fichier laisse par une session precedente est efface).
+  constructor(userDataPath, retention) {
     this.cheminFichier = path.join(userDataPath, 'history.json');
-    this.donnees = this._charger();
+    this.retention = retention === 'prive' ? 'prive' : 'normal';
+    if (this.retention === 'prive') {
+      this._supprimerFichier();
+      this.donnees = { entries: [] };
+    } else {
+      this.donnees = this._charger();
+    }
+  }
+
+  definirRetention(retention) {
+    this.retention = retention === 'prive' ? 'prive' : 'normal';
+    if (this.retention === 'prive') {
+      // Passage en mode prive : on efface aussi ce qui existait deja.
+      this._supprimerFichier();
+    } else {
+      this._ecrireAtomique();
+    }
+  }
+
+  _supprimerFichier() {
+    try {
+      fs.unlinkSync(this.cheminFichier);
+    } catch (err) {
+      // Fichier deja absent : rien a faire.
+    }
   }
 
   _charger() {
@@ -23,6 +49,7 @@ class History {
   }
 
   _ecrireAtomique() {
+    if (this.retention === 'prive') return;
     const dossier = path.dirname(this.cheminFichier);
     fs.mkdirSync(dossier, { recursive: true });
     const fichierTemp = path.join(

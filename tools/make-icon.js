@@ -6,7 +6,7 @@ const zlib = require('zlib');
 const fs = require('fs');
 const path = require('path');
 
-const BLEU_NUIT = [44, 62, 107, 255];
+const TEAL_PLAI = [10, 147, 112, 255];
 const BLANC = [255, 255, 255, 255];
 
 function drawIcon(SIZE) {
@@ -24,12 +24,12 @@ function drawIcon(SIZE) {
   const centre = (SIZE - 1) / 2;
   const rayon = SIZE / 2 - Math.max(0.5, SIZE / 64);
 
-  // Disque bleu nuit en fond.
+  // Disque teal PLAI en fond.
   for (let y = 0; y < SIZE; y++) {
     for (let x = 0; x < SIZE; x++) {
       const dx = x - centre;
       const dy = y - centre;
-      if (dx * dx + dy * dy <= rayon * rayon) setPixel(x, y, BLEU_NUIT);
+      if (dx * dx + dy * dy <= rayon * rayon) setPixel(x, y, TEAL_PLAI);
     }
   }
 

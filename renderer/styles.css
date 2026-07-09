@@ -1,11 +1,12 @@
 /* Style de la fenetre principale, inspire de Wispr Flow : fond creme, encre
    foncee, accent chaud, titres en serif, interface aeree, theme clair unique. */
 
+/* Accent aux couleurs PLAI (teal #0a9370). */
 :root {
-  --creme: #faf7f2;
+  --creme: #faf9f7;
   --encre: #1f1d1a;
-  --accent: #c96f4a;
-  --accent-clair: #e8b9a2;
+  --accent: #0a9370;
+  --accent-clair: #9ed9c8;
   --gris-doux: #7a746a;
   --bordure: #e6ddd0;
   --carte: #ffffff;
@@ -31,6 +32,14 @@ h1, h2, h3 {
   font-family: Georgia, "Times New Roman", serif;
   font-weight: normal;
   margin: 0 0 0.5em 0;
+}
+
+/* Texte d'aide sous un champ de formulaire : explique la portee de la saisie. */
+.aide-champ {
+  color: var(--gris-doux);
+  font-size: 0.85em;
+  margin-top: 6px;
+  max-width: 560px;
 }
 
 .app {

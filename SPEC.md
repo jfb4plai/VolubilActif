@@ -1,5 +1,12 @@
 # SPEC — Volubil-IA
 
+> **Écarts VolubilActif (fork PLAI)** : ce document est la spec du projet
+> d'origine, conservée telle quelle. Le fork ajoute : modèle `turbo`
+> (large-v3-turbo q5_0), réglage `historyRetention` (normal/prive, mode privé
+> sans écriture disque), réglage `examMode` (nettoyage simple forcé, jamais de
+> LLM), export/import du dictionnaire (fusion), `userName` vide par défaut
+> (prénom ou code personnel), rebranding VolubilActif aux couleurs PLAI.
+
 Application de dictée vocale 100 % locale, inspirée de Wispr Flow, pour Windows et macOS (Apple Silicon).
 Electron, aucune clé API, aucun coût récurrent, aucune donnée qui sort de la machine.
 

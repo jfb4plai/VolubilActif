@@ -41,7 +41,8 @@ function libelleJour(ts) {
 
 async function chargerAccueil() {
   const reglages = await window.volubil.getSettings();
-  document.getElementById('titre-accueil').textContent = `Bon retour, ${reglages.userName}`;
+  const nom = (reglages.userName || '').trim();
+  document.getElementById('titre-accueil').textContent = nom ? `Bon retour, ${nom}` : 'Bon retour';
 
   const stats = await window.volubil.getStatistiques();
   document.getElementById('stat-mots').textContent = stats.totalMots;
@@ -182,6 +183,33 @@ document.getElementById('btn-ajouter-dico').addEventListener('click', async () =
   chargerDictionnaire();
 });
 
+document.getElementById('btn-exporter-dico').addEventListener('click', async () => {
+  const statut = document.getElementById('statut-dico');
+  const resultat = await window.volubil.exporterDictionnaire();
+  if (resultat.annule) {
+    statut.textContent = '';
+    return;
+  }
+  statut.textContent = resultat.succes
+    ? `Dictionnaire exporté : ${resultat.chemin}`
+    : `Erreur d'export : ${resultat.erreur}`;
+});
+
+document.getElementById('btn-importer-dico').addEventListener('click', async () => {
+  const statut = document.getElementById('statut-dico');
+  const resultat = await window.volubil.importerDictionnaire();
+  if (resultat.annule) {
+    statut.textContent = '';
+    return;
+  }
+  if (resultat.succes) {
+    statut.textContent = `Import terminé : ${resultat.ajoutees} entrée(s) ajoutée(s), ${resultat.completees} complétée(s).`;
+    chargerDictionnaire();
+  } else {
+    statut.textContent = `Erreur d'import : ${resultat.erreur}`;
+  }
+});
+
 // ---------------------------------------------------------------------------
 // Reglages
 // ---------------------------------------------------------------------------
@@ -195,6 +223,8 @@ async function chargerReglages() {
   document.getElementById('reg-langue').value = reglagesCourants.language;
   document.getElementById('reg-mode').value = reglagesCourants.mode;
   document.getElementById('reg-ollama-modele').value = reglagesCourants.ollamaModel;
+  document.getElementById('reg-retention').value = reglagesCourants.historyRetention || 'normal';
+  document.getElementById('reg-examen').checked = Boolean(reglagesCourants.examMode);
 
   basculerBlocOllama();
   if (reglagesCourants.mode === 'ameliore') testerOllamaEtAfficher();
@@ -301,11 +331,13 @@ document.getElementById('btn-dossier-donnees').addEventListener('click', () => {
 
 document.getElementById('btn-enregistrer-reglages').addEventListener('click', async () => {
   const partiel = {
-    userName: document.getElementById('reg-prenom').value.trim() || 'Anne-Cécile',
+    userName: document.getElementById('reg-prenom').value.trim(),
     modelSize: document.getElementById('reg-modele').value,
     language: document.getElementById('reg-langue').value,
     mode: document.getElementById('reg-mode').value,
     ollamaModel: document.getElementById('reg-ollama-modele').value.trim() || 'qwen2.5:3b',
+    historyRetention: document.getElementById('reg-retention').value,
+    examMode: document.getElementById('reg-examen').checked,
   };
   await window.volubil.saveSettings(partiel);
   chargerAccueil();

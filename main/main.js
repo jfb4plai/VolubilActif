@@ -1,4 +1,4 @@
-// Point d'entree de Volubil-IA : fenetres, tray, raccourci global et machine
+// Point d'entree de VolubilActif : fenetres, tray, raccourci global et machine
 // a etats du pipeline de dictee (idle -> recording -> processing -> idle).
 const {
   app,
@@ -11,6 +11,7 @@ const {
   shell,
   systemPreferences,
   nativeImage,
+  dialog,
 } = require('electron');
 const path = require('path');
 const fs = require('fs');
@@ -67,7 +68,7 @@ function creerFenetrePrincipale() {
     height: 700,
     minWidth: 760,
     minHeight: 560,
-    title: 'Volubil-IA',
+    title: 'VolubilActif',
     icon: cheminIcone(),
     webPreferences: {
       preload: path.join(__dirname, '..', 'preload.js'),
@@ -94,7 +95,7 @@ function creerFenetreOnboarding() {
   fenetreOnboarding = new BrowserWindow({
     width: 720,
     height: 620,
-    title: 'Bienvenue dans Volubil-IA',
+    title: 'Bienvenue dans VolubilActif',
     icon: cheminIcone(),
     resizable: false,
     webPreferences: {
@@ -241,7 +242,7 @@ function construireMenuTray() {
   const modeAmeliore = settings.get('mode') === 'ameliore';
 
   return Menu.buildFromTemplate([
-    { label: 'Ouvrir Volubil-IA', click: () => creerFenetrePrincipale() },
+    { label: 'Ouvrir VolubilActif', click: () => creerFenetrePrincipale() },
     { type: 'separator' },
     { label: `Raccourci : ${settings.get('hotkey')}`, enabled: false },
     { type: 'separator' },
@@ -256,6 +257,13 @@ function construireMenuTray() {
       type: 'radio',
       checked: modeAmeliore,
       click: () => changerMode('ameliore'),
+    },
+    { type: 'separator' },
+    {
+      label: 'Mode examen (transcription brute, sans IA)',
+      type: 'checkbox',
+      checked: Boolean(settings.get('examMode')),
+      click: (item) => changerModeExamen(item.checked),
     },
     { type: 'separator' },
     {
@@ -278,9 +286,15 @@ function changerMode(mode) {
   if (fenetrePrincipale) fenetrePrincipale.webContents.send('history:updated');
 }
 
+function changerModeExamen(actif) {
+  settings.set({ examMode: Boolean(actif) });
+  rafraichirMenuTray();
+  if (fenetrePrincipale) fenetrePrincipale.webContents.send('history:updated');
+}
+
 function creerTray() {
   tray = new Tray(cheminIcone());
-  tray.setToolTip('Volubil-IA');
+  tray.setToolTip('VolubilActif');
   tray.setContextMenu(construireMenuTray());
   tray.on('click', () => creerFenetrePrincipale());
 }
@@ -344,7 +358,7 @@ async function demarrerEnregistrement() {
       if (!accorde) {
         etat = 'idle';
         afficherHud('erreur', {
-          message: 'Accès au micro refusé. Autorise Volubil-IA dans Réglages Système > Confidentialité et sécurité > Microphone.',
+          message: 'Accès au micro refusé. Autorise VolubilActif dans Réglages Système > Confidentialité et sécurité > Microphone.',
         });
         masquerHudApres(8000);
         return;
@@ -403,7 +417,10 @@ async function traiterAudio(arrayBuffer, sampleRate) {
       return;
     }
 
-    const modeCourant = settings.get('mode');
+    // En mode examen, on force le nettoyage simple : la voix est transcrite
+    // telle quelle, jamais reformulee par un modele de langage (equite).
+    const modeExamen = Boolean(settings.get('examMode'));
+    const modeCourant = modeExamen ? 'simple' : settings.get('mode');
     let texteNettoye;
     let modeUtilise;
 
@@ -436,7 +453,12 @@ async function traiterAudio(arrayBuffer, sampleRate) {
     const nbMots = texteFinal.trim().length ? texteFinal.trim().split(/\s+/).length : 0;
 
     if (resultatInsertion.succes) {
-      const mention = modeUtilise === 'simple' && modeCourant === 'ameliore' ? ' (mode simple utilisé)' : '';
+      let mention = '';
+      if (modeExamen) {
+        mention = ' (mode examen)';
+      } else if (modeUtilise === 'simple' && modeCourant === 'ameliore') {
+        mention = ' (mode simple utilisé)';
+      }
       afficherHud('succes', { texte: texteFinal, nbMots, mention });
       masquerHudApres(10000);
     } else if (resultatInsertion.autorisationManquante) {
@@ -483,6 +505,11 @@ function enregistrerGestionnairesIpc() {
       // Le renderer doit d'abord tester via settings:test-hotkey ; ici on
       // applique simplement le changement deja valide.
       enregistrerRaccourci(misAJour.hotkey);
+    }
+
+    if (partiel.historyRetention !== undefined) {
+      history.definirRetention(misAJour.historyRetention);
+      if (fenetrePrincipale) fenetrePrincipale.webContents.send('history:updated');
     }
 
     rafraichirMenuTray();
@@ -533,6 +560,47 @@ function enregistrerGestionnairesIpc() {
   ipcMain.handle('dictionary:add', (_event, entree) => dictionary.ajouter(entree));
   ipcMain.handle('dictionary:update', (_event, index, entree) => dictionary.modifier(index, entree));
   ipcMain.handle('dictionary:remove', (_event, index) => dictionary.supprimer(index));
+
+  // Partage du dictionnaire : un enseignant prepare le vocabulaire de son
+  // cours, exporte le fichier, les eleves l'importent (fusion sans ecrasement).
+  ipcMain.handle('dictionary:export', async () => {
+    const { canceled, filePath } = await dialog.showSaveDialog({
+      title: 'Exporter le dictionnaire',
+      defaultPath: 'dictionnaire-volubilactif.json',
+      filters: [{ name: 'JSON', extensions: ['json'] }],
+    });
+    if (canceled || !filePath) return { succes: false, annule: true };
+    try {
+      fs.writeFileSync(
+        filePath,
+        JSON.stringify({ entries: dictionary.getAll() }, null, 2),
+        'utf8'
+      );
+      return { succes: true, chemin: filePath };
+    } catch (err) {
+      return { succes: false, erreur: err.message };
+    }
+  });
+
+  ipcMain.handle('dictionary:import', async () => {
+    const { canceled, filePaths } = await dialog.showOpenDialog({
+      title: 'Importer un dictionnaire',
+      filters: [{ name: 'JSON', extensions: ['json'] }],
+      properties: ['openFile'],
+    });
+    if (canceled || !filePaths || !filePaths[0]) return { succes: false, annule: true };
+    try {
+      const contenu = fs.readFileSync(filePaths[0], 'utf8');
+      const json = JSON.parse(contenu);
+      if (!Array.isArray(json.entries)) {
+        return { succes: false, erreur: 'Fichier invalide : liste "entries" absente.' };
+      }
+      const bilan = dictionary.fusionner(json.entries);
+      return { succes: true, ...bilan };
+    } catch (err) {
+      return { succes: false, erreur: err.message };
+    }
+  });
 
   ipcMain.handle('correction:open', (_event, entree) => {
     creerFenetreCorrection(entree);
@@ -593,7 +661,7 @@ app.on('second-instance', () => {
 
 app.whenReady().then(async () => {
   settings = new Settings(app.getPath('userData'));
-  history = new History(app.getPath('userData'));
+  history = new History(app.getPath('userData'), settings.get('historyRetention'));
   dictionary = new Dictionary(app.getPath('userData'));
 
   enregistrerGestionnairesIpc();

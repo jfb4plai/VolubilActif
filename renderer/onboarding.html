@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8" />
-  <title>Bienvenue dans Volubil-IA</title>
+  <title>Bienvenue dans VolubilActif</title>
   <link rel="stylesheet" href="styles.css" />
   <style>
     body { overflow-y: auto; }
@@ -17,7 +17,7 @@
       padding: 18px;
       cursor: pointer;
     }
-    .carte-mode.selectionnee { border-color: var(--accent); background: #fdf1ea; }
+    .carte-mode.selectionnee { border-color: var(--accent); background: #eaf6f1; }
     .carte-mode h3 { margin-bottom: 8px; }
     .carte-mode p { color: var(--gris-doux); font-size: 0.9em; margin: 0; }
     .navigation { display: flex; justify-content: space-between; margin-top: 28px; }
@@ -36,12 +36,16 @@
   <div class="onboarding">
     <!-- Etape 1 : bienvenue -->
     <div class="etape visible" id="etape-1">
-      <h1>Bienvenue dans Volubil-IA</h1>
+      <h1>Bienvenue dans VolubilActif</h1>
       <p>
-        Volubil-IA transforme ta voix en texte, directement dans l'application
-        que tu utilises, sans jamais rien envoyer sur internet (sauf le
-        téléchargement du modèle, une seule fois). Ton micro, ta machine,
-        rien d'autre.
+        VolubilActif transforme ta voix en texte, directement dans
+        l'application que tu utilises, sans jamais rien envoyer sur internet
+        (sauf le téléchargement du modèle, une seule fois). Ton micro, ta
+        machine, rien d'autre.
+      </p>
+      <p style="color: var(--gris-doux); font-size: 0.9em;">
+        Adaptation PLAI de Volubil-IA (Anne-Cécile Le Dain), pensée pour les
+        élèves pour qui écrire au stylo ou au clavier est un obstacle.
       </p>
       <div class="navigation">
         <span></span>
@@ -75,13 +79,21 @@
       <div class="cartes-mode">
         <div class="carte-mode selectionnee" data-taille="base">
           <h3>Base</h3>
-          <p>Recommandé, rapide. Environ 142 Mo.</p>
+          <p>Rapide, pour tester. Environ 142 Mo.</p>
         </div>
         <div class="carte-mode" data-taille="small">
           <h3>Small</h3>
           <p>Plus précis, plus lourd. Environ 466 Mo.</p>
         </div>
+        <div class="carte-mode" data-taille="turbo">
+          <h3>Turbo</h3>
+          <p>Le plus précis en français, conseillé pour un élève. Environ 574 Mo.</p>
+        </div>
       </div>
+      <p style="color: var(--gris-doux); font-size: 0.9em;">
+        Voix jeune, accent, bruit de classe : plus le modèle est grand, plus
+        la reconnaissance est fiable. Tu pourras changer dans les réglages.
+      </p>
       <button class="principal" id="btn-telecharger-modele">Télécharger</button>
       <div class="barre-progression" id="barre-modele" style="display: none;">
         <div class="remplissage" id="remplissage-modele" style="width: 0%;"></div>
@@ -114,7 +126,7 @@
       <p>Appuie sur ton raccourci, parle, appuie à nouveau : ton texte s'insère directement.</p>
       <div class="navigation">
         <span></span>
-        <button class="principal" id="btn-terminer">Ouvrir Volubil-IA</button>
+        <button class="principal" id="btn-terminer">Ouvrir VolubilActif</button>
       </div>
     </div>
   </div>

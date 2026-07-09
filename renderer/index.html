@@ -2,13 +2,13 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8" />
-  <title>Volubil-IA</title>
+  <title>VolubilActif</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <div class="app">
     <aside class="barre-laterale">
-      <div class="logo">Volubil-IA</div>
+      <div class="logo">VolubilActif</div>
       <button data-page="accueil" class="actif">Accueil</button>
       <button data-page="dictionnaire">Dictionnaire</button>
       <button data-page="reglages">Réglages</button>
@@ -62,6 +62,21 @@
         </div>
         <button class="principal" id="btn-ajouter-dico">Ajouter</button>
 
+        <div class="champ" style="margin-top: 28px;">
+          <label>Partager le dictionnaire</label>
+          <div style="display: flex; gap: 8px;">
+            <button class="discret" id="btn-exporter-dico">Exporter (fichier JSON)</button>
+            <button class="discret" id="btn-importer-dico">Importer (fichier JSON)</button>
+          </div>
+          <div class="aide-champ">
+            Un enseignant peut préparer le vocabulaire technique de son cours
+            (termes de métier, noms d'outils, sigles) puis distribuer le
+            fichier à ses élèves. L'import fusionne avec le dictionnaire
+            existant, rien n'est écrasé.
+          </div>
+          <div id="statut-dico" class="aide-champ"></div>
+        </div>
+
         <h2 style="margin-top: 32px;">Entrées actuelles</h2>
         <div id="liste-dictionnaire"></div>
       </section>
@@ -71,8 +86,13 @@
         <h1>Réglages</h1>
 
         <div class="champ">
-          <label for="reg-prenom">Prénom</label>
-          <input type="text" id="reg-prenom" />
+          <label for="reg-prenom">Prénom ou code personnel</label>
+          <input type="text" id="reg-prenom" placeholder="Ex : Lina, ou un code comme EL07" />
+          <div class="aide-champ">
+            Sert uniquement au message d'accueil, rien ne quitte la machine.
+            Sur un ordinateur partagé (classe, local informatique), utilise
+            un code plutôt qu'un prénom.
+          </div>
         </div>
 
         <div class="champ">
@@ -84,9 +104,15 @@
         <div class="champ">
           <label for="reg-modele">Taille du modèle Whisper</label>
           <select id="reg-modele">
-            <option value="base">Base (recommandé, rapide, 142 Mo)</option>
+            <option value="base">Base (rapide, pour tester, 142 Mo)</option>
             <option value="small">Small (plus précis, 466 Mo)</option>
+            <option value="turbo">Turbo (le plus précis en français, 574 Mo)</option>
           </select>
+          <div class="aide-champ">
+            Base convient pour essayer. Pour un usage réel par un élève (voix
+            jeune, accent, bruit de fond), choisis Small ou Turbo : la
+            précision en français augmente nettement avec la taille du modèle.
+          </div>
           <div id="reg-modele-statut" style="margin-top: 8px; font-size: 0.85em;"></div>
           <div class="barre-progression" id="reg-modele-barre" style="display: none;">
             <div class="remplissage" id="reg-modele-remplissage" style="width: 0%;"></div>
@@ -109,6 +135,33 @@
           </select>
         </div>
 
+        <div class="champ">
+          <label for="reg-retention">Conservation des dictées</label>
+          <select id="reg-retention">
+            <option value="normal">Conserver l'historique (500 dernières dictées)</option>
+            <option value="prive">Mode privé : rien sur le disque</option>
+          </select>
+          <div class="aide-champ">
+            Sur un ordinateur partagé entre plusieurs élèves, choisis le mode
+            privé : aucune dictée n'est enregistrée sur la machine et
+            l'historique existant est effacé. La correction rapide reste
+            possible pendant la session en cours.
+          </div>
+        </div>
+
+        <div class="champ">
+          <label for="reg-examen" style="display: flex; align-items: center; gap: 8px;">
+            <input type="checkbox" id="reg-examen" style="width: auto;" />
+            Mode examen
+          </label>
+          <div class="aide-champ">
+            Pour les évaluations : la voix est transcrite telle quelle
+            (nettoyage de base uniquement), sans passage par un modèle d'IA
+            qui pourrait reformuler. La mention "mode examen" s'affiche à
+            chaque dictée.
+          </div>
+        </div>
+
         <div class="champ" id="bloc-ollama" style="display: none;">
           <label for="reg-ollama-modele">Nom du modèle Ollama</label>
           <input type="text" id="reg-ollama-modele" />
@@ -127,16 +180,26 @@
       <section id="page-apropos" class="page">
         <h1>À propos</h1>
         <div class="a-propos">
-          <p><strong>Volubil-IA</strong>, version 1.0.0.</p>
+          <p><strong>VolubilActif</strong>, version 1.1.0.</p>
+          <p>
+            Adaptation PLAI (Pôle Territorial de la Ville de Liège, école
+            inclusive) de <a href="https://github.com/annece29-netizen/Volubil-IA">Volubil-IA</a>,
+            créé par Anne-Cécile Le Dain (licence MIT). Pensée pour les
+            élèves pour qui écrire au stylo ou au clavier est un obstacle
+            (dysgraphie, dyslexie, fatigue motrice) : la dictée vocale est un
+            outil de compensation reconnu comme aménagement raisonnable en
+            Fédération Wallonie-Bruxelles.
+          </p>
           <p>
             Toute la dictée se passe sur ta machine : rien n'est envoyé sur
             internet, hormis le téléchargement initial du modèle Whisper et
             les échanges avec Ollama si tu utilises le mode amélioré (et
             Ollama tourne lui aussi en local). Aucune télémétrie, aucune
-            capture d'écran, aucun abonnement.
+            capture d'écran, aucun abonnement. La voix d'un élève ne quitte
+            jamais l'ordinateur.
           </p>
           <p>
-            <a href="https://github.com/annece29-netizen/Volubil-IA" id="lien-github">Code source sur GitHub</a>
+            <a href="https://github.com/jfb4plai/VolubilActif" id="lien-github">Code source sur GitHub</a>
           </p>
         </div>
       </section>

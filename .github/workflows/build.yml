@@ -94,13 +94,13 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
-          name: Volubil-IA ${{ github.ref_name }}
+          name: VolubilActif ${{ github.ref_name }}
           body: |
             Télécharge le fichier qui correspond à ton ordinateur, juste en dessous (section "Assets") :
             - Windows : le fichier `.exe`
             - Mac (Apple Silicon) : le fichier `.dmg`
 
-            Mode d'emploi complet dans le [README](https://github.com/annece29-netizen/Volubil-IA#readme).
+            Mode d'emploi complet dans le [README](https://github.com/jfb4plai/VolubilActif#readme).
 
             Chaque installateur est accompagné d'un fichier `.sha256.txt` : il permet de vérifier que le fichier téléchargé est bien celui construit ici, sans modification en chemin.
           files: |
