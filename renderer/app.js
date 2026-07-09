@@ -225,6 +225,7 @@ async function chargerReglages() {
   document.getElementById('reg-ollama-modele').value = reglagesCourants.ollamaModel;
   document.getElementById('reg-retention').value = reglagesCourants.historyRetention || 'normal';
   document.getElementById('reg-examen').checked = Boolean(reglagesCourants.examMode);
+  document.getElementById('reg-ponctuation').checked = reglagesCourants.dictatedPunctuation !== false;
 
   basculerBlocOllama();
   if (reglagesCourants.mode === 'ameliore') testerOllamaEtAfficher();
@@ -338,6 +339,7 @@ document.getElementById('btn-enregistrer-reglages').addEventListener('click', as
     ollamaModel: document.getElementById('reg-ollama-modele').value.trim() || 'qwen2.5:3b',
     historyRetention: document.getElementById('reg-retention').value,
     examMode: document.getElementById('reg-examen').checked,
+    dictatedPunctuation: document.getElementById('reg-ponctuation').checked,
   };
   await window.volubil.saveSettings(partiel);
   chargerAccueil();

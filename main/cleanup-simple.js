@@ -42,8 +42,9 @@ function reduireDoublons(texte) {
 function corrigerEspaces(texte) {
   let resultat = texte;
   // Pas d'espace avant , et . ; un espace apres si suivi d'un caractere.
+  // Exceptions : pas d'espace au sein d'un nombre ("3,5") ni de "...".
   resultat = resultat.replace(/\s+([.,])/g, '$1');
-  resultat = resultat.replace(/([.,])(?=\S)/g, '$1 ');
+  resultat = resultat.replace(/([.,])(?=[^\s.,\d])/g, '$1 ');
   // Espace simple acceptee avant ?!;: (convention francaise simplifiee).
   resultat = resultat.replace(/\s*([?!;:])/g, ' $1');
   resultat = resultat.replace(/([?!;:])(?=\S)/g, '$1 ');
@@ -58,6 +59,9 @@ function mettreMajusculeInitiale(texte) {
   if (!texte) return texte;
   const premierCaractereIndex = texte.search(/\p{L}/u);
   if (premierCaractereIndex === -1) return texte;
+  // Un texte qui commence par un nombre ("3,5 grammes de sel") ne doit pas
+  // recevoir de majuscule sur son premier mot.
+  if (/\d/.test(texte.slice(0, premierCaractereIndex))) return texte;
   return (
     texte.slice(0, premierCaractereIndex) +
     texte[premierCaractereIndex].toUpperCase() +
@@ -73,6 +77,71 @@ function supprimerArtefacts(texte) {
   return resultat;
 }
 
+// ---------------------------------------------------------------------------
+// Ponctuation dictee a voix haute, convertie par regles (sans IA) : fonctionne
+// donc aussi en mode examen. Les formes composees sont traitees avant les
+// formes simples pour eviter les conversions partielles.
+// ---------------------------------------------------------------------------
+
+const PONCTUATION_DICTEE = [
+  // "3 virgule 5" est un nombre decimal, pas une enumeration : pas d'espace.
+  [/(\d)\s+virgule\s+(?=\d)/gi, '$1,'],
+  [/\bpoints?\s+de\s+suspension\b/gi, '...'],
+  [/\bpoint[\s-]+virgule\b/gi, ';'],
+  [/\bpoint\s+d[’']interrogation\b/gi, '?'],
+  [/\bpoint\s+d[’']exclamation\b/gi, '!'],
+  [/\bdeux[\s-]+points\b/gi, ':'],
+  [/\bnouveau\s+paragraphe\b/gi, '\n\n'],
+  // \b ne fonctionne pas devant un caractere accentue ("à") : on ancre sur
+  // le debut de texte ou un blanc, consomme avec le saut de ligne.
+  [/(^|\s)[aà]\s+la\s+ligne\b/gi, '\n'],
+  [/\bnouvelle\s+ligne\b/gi, '\n'],
+  [/\bouvrez?\s+(?:les\s+)?guillemets\b/gi, '«'],
+  [/\bfermez?\s+(?:les\s+)?guillemets\b/gi, '»'],
+  [/\bouvrez?\s+(?:la\s+)?parenth[eè]se\b/gi, '('],
+  [/\bfermez?\s+(?:la\s+)?parenth[eè]se\b/gi, ')'],
+  [/\bpoint\s+final\b/gi, '.'],
+  [/\bvirgule\b/gi, ','],
+];
+
+// "point" seul devient "." SAUF usage nominal courant : precede d'un
+// determinant ("un point", "ce point") ou suivi de "de/d'/du/des"
+// ("point de vue", "point d'eau"). Le pluriel "points" n'est jamais converti.
+const DETERMINANT_AVANT_POINT =
+  /\b(?:un|le|ce|cet|au|du|mon|ton|son|notre|votre|leur|chaque|quel|petit|bon|dernier|premier|deuxi[eè]me|troisi[eè]me)\s+$/i;
+
+function convertirPointDicte(texte) {
+  return texte.replace(/\bpoint\b/gi, (correspondance, index, chaine) => {
+    const avant = chaine.slice(0, index);
+    const apres = chaine.slice(index + correspondance.length);
+    if (DETERMINANT_AVANT_POINT.test(avant)) return correspondance;
+    if (/^\s*(?:de\b|d[’']|du\b|des\b)/i.test(apres)) return correspondance;
+    return '.';
+  });
+}
+
+function majusculesApresPonctuation(texte) {
+  // Apres un "point" dicte, le mot suivant arrive en minuscule : on remet la
+  // majuscule apres . ! ? et apres un saut de ligne.
+  return texte.replace(
+    /([.!?]\s+|\n\s*)(\p{L})/gu,
+    (correspondance, avant, lettre) => avant + lettre.toUpperCase()
+  );
+}
+
+function appliquerPonctuationDictee(texte) {
+  if (!texte) return texte;
+  let resultat = texte;
+  for (const [motif, remplacement] of PONCTUATION_DICTEE) {
+    resultat = resultat.replace(motif, remplacement);
+  }
+  resultat = convertirPointDicte(resultat);
+  // Pas d'espaces residuels autour des sauts de ligne inseres.
+  resultat = resultat.replace(/[ \t]*(\n+)[ \t]*/g, '$1');
+  resultat = majusculesApresPonctuation(resultat);
+  return resultat;
+}
+
 function nettoyerSimple(texteBrut) {
   if (!texteBrut) return '';
   let texte = texteBrut;
@@ -84,4 +153,4 @@ function nettoyerSimple(texteBrut) {
   return texte;
 }
 
-module.exports = { nettoyerSimple };
+module.exports = { nettoyerSimple, appliquerPonctuationDictee };

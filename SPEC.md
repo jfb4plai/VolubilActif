@@ -5,7 +5,10 @@
 > (large-v3-turbo q5_0), réglage `historyRetention` (normal/prive, mode privé
 > sans écriture disque), réglage `examMode` (nettoyage simple forcé, jamais de
 > LLM), export/import du dictionnaire (fusion), `userName` vide par défaut
-> (prénom ou code personnel), rebranding VolubilActif aux couleurs PLAI.
+> (prénom ou code personnel), rebranding VolubilActif aux couleurs PLAI,
+> réglage `dictatedPunctuation` (v1.2.0 : ponctuation dictée convertie par
+> règles dans cleanup-simple.js, active dans les deux modes et en mode
+> examen ; garde-fous "point de vue", "un point", nombres "3 virgule 5").
 
 Application de dictée vocale 100 % locale, inspirée de Wispr Flow, pour Windows et macOS (Apple Silicon).
 Electron, aucune clé API, aucun coût récurrent, aucune donnée qui sort de la machine.

@@ -22,6 +22,9 @@ const VALEURS_PAR_DEFAUT = {
   historyRetention: 'normal',
   // Mode examen : transcription brute + nettoyage par regles, jamais de LLM.
   examMode: false,
+  // Ponctuation dictee ("virgule", "point", "a la ligne"...) convertie par
+  // regles, sans IA : active aussi en mode examen.
+  dictatedPunctuation: true,
 };
 
 class Settings {

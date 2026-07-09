@@ -150,6 +150,20 @@
         </div>
 
         <div class="champ">
+          <label for="reg-ponctuation" style="display: flex; align-items: center; gap: 8px;">
+            <input type="checkbox" id="reg-ponctuation" style="width: auto;" />
+            Ponctuation dictée
+          </label>
+          <div class="aide-champ">
+            Dire "virgule", "point", "point d'interrogation", "à la ligne",
+            "nouveau paragraphe", "ouvrez les guillemets"... insère le signe
+            correspondant. Conversion par règles, sans IA : fonctionne aussi
+            en mode examen. Décoche si un texte utilise souvent les mots
+            "point" ou "virgule" au sens propre.
+          </div>
+        </div>
+
+        <div class="champ">
           <label for="reg-examen" style="display: flex; align-items: center; gap: 8px;">
             <input type="checkbox" id="reg-examen" style="width: auto;" />
             Mode examen
@@ -180,7 +194,7 @@
       <section id="page-apropos" class="page">
         <h1>À propos</h1>
         <div class="a-propos">
-          <p><strong>VolubilActif</strong>, version 1.1.0.</p>
+          <p><strong>VolubilActif</strong>, version 1.2.0.</p>
           <p>
             Adaptation PLAI (Pôle Territorial de la Ville de Liège, école
             inclusive) de <a href="https://github.com/annece29-netizen/Volubil-IA">Volubil-IA</a>,

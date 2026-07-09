@@ -20,7 +20,7 @@ const { Settings } = require('./settings');
 const { History } = require('./history');
 const { Dictionary } = require('./dictionary');
 const whisper = require('./whisper');
-const { nettoyerSimple } = require('./cleanup-simple');
+const { nettoyerSimple, appliquerPonctuationDictee } = require('./cleanup-simple');
 const { nettoyerAmeliore, detecterOllama } = require('./ollama');
 const { insererTexte } = require('./inserter');
 const recorderBridge = require('./recorder-bridge');
@@ -417,6 +417,13 @@ async function traiterAudio(arrayBuffer, sampleRate) {
       return;
     }
 
+    // Ponctuation dictee convertie par regles, avant les deux branches :
+    // elle fonctionne donc aussi en mode examen et dans le repli du mode
+    // ameliore, sans dependre d'un modele de langage.
+    const texteTraite = settings.get('dictatedPunctuation') !== false
+      ? appliquerPonctuationDictee(texteBrut)
+      : texteBrut;
+
     // En mode examen, on force le nettoyage simple : la voix est transcrite
     // telle quelle, jamais reformulee par un modele de langage (equite).
     const modeExamen = Boolean(settings.get('examMode'));
@@ -427,14 +434,14 @@ async function traiterAudio(arrayBuffer, sampleRate) {
     if (modeCourant === 'ameliore') {
       afficherHud('nettoyage', {});
       const resultat = await nettoyerAmeliore(
-        texteBrut,
+        texteTraite,
         settings.getAll(),
         dictionary.listeFormesCorrectes()
       );
       texteNettoye = resultat.texte;
       modeUtilise = resultat.modeUtilise;
     } else {
-      texteNettoye = nettoyerSimple(texteBrut);
+      texteNettoye = nettoyerSimple(texteTraite);
       modeUtilise = 'simple';
     }
 

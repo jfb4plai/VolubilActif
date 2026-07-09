@@ -29,6 +29,13 @@ Volubil-IA ce qu'il faut pour un usage scolaire :
 - **Un mode examen** : la voix est transcrite telle quelle, sans passage par
   un modèle d'IA qui pourrait reformuler. Pendant une évaluation, l'outil
   compense le geste d'écriture, pas la rédaction.
+- **La ponctuation dictée sans IA** : dire "virgule", "point", "point
+  d'interrogation", "à la ligne", "nouveau paragraphe", "ouvrez les
+  guillemets" insère le signe correspondant, par simples règles de
+  conversion. Elle fonctionne donc partout, y compris en mode examen, sans
+  Ollama. Des garde-fous préservent les usages normaux du mot ("point de
+  vue", "il marque un point", "3 virgule 5" devient 3,5). Désactivable dans
+  les réglages.
 - **Le partage du dictionnaire** : l'enseignant prépare le vocabulaire
   technique de son cours (termes de métier, noms d'outils, sigles) et
   distribue le fichier à ses élèves en un clic.
@@ -159,9 +166,10 @@ Sur une machine personnelle avec 8 Go de RAM ou plus :
 2. Dans un terminal : `ollama pull qwen2.5:3b`
 3. Basculer sur le mode amélioré dans les réglages.
 
-Apports : ponctuation naturelle automatique, ponctuation dictée ("virgule",
-"point", "à la ligne"), gestion des retours en arrière ("14h, en fait non,
-15h" devient "15h").
+Apports : ponctuation naturelle ajoutée automatiquement (sans avoir à la
+dicter), gestion des retours en arrière ("14h, en fait non, 15h" devient
+"15h"), nettoyage plus fin des faux départs. La ponctuation dictée, elle,
+fonctionne dans tous les modes : elle ne dépend pas d'Ollama.
 
 ## Limites connues (honnêtement)
 
