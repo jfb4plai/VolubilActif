@@ -341,7 +341,19 @@ document.getElementById('btn-enregistrer-reglages').addEventListener('click', as
     examMode: document.getElementById('reg-examen').checked,
     dictatedPunctuation: document.getElementById('reg-ponctuation').checked,
   };
-  await window.volubil.saveSettings(partiel);
+  const statut = document.getElementById('statut-reglages');
+  try {
+    await window.volubil.saveSettings(partiel);
+    reglagesCourants = { ...reglagesCourants, ...partiel };
+    statut.textContent = 'Réglages enregistrés.';
+    statut.style.color = 'var(--vert)';
+  } catch (err) {
+    statut.textContent = `Erreur d'enregistrement : ${err.message || err}`;
+    statut.style.color = 'var(--rouge)';
+  }
+  setTimeout(() => {
+    statut.textContent = '';
+  }, 4000);
   chargerAccueil();
 });
 
