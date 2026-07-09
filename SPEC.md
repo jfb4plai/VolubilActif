@@ -9,6 +9,11 @@
 > réglage `dictatedPunctuation` (v1.2.0 : ponctuation dictée convertie par
 > règles dans cleanup-simple.js, active dans les deux modes et en mode
 > examen ; garde-fous "point de vue", "un point", nombres "3 virgule 5").
+> v1.3.0 : mode maintien-appui (`holdToTalk`, main/hold-to-talk.js) via
+> uiohook-napi, seule dépendance runtime du projet (rompt volontairement la
+> règle "ZÉRO dépendance" de la spec upstream) : hook clavier global
+> nécessaire pour détecter le relâchement de touche, ce que globalShortcut
+> d'Electron ne permet pas. Décision documentée dans le README.
 
 Application de dictée vocale 100 % locale, inspirée de Wispr Flow, pour Windows et macOS (Apple Silicon).
 Electron, aucune clé API, aucun coût récurrent, aucune donnée qui sort de la machine.

@@ -25,6 +25,10 @@ const VALEURS_PAR_DEFAUT = {
   // Ponctuation dictee ("virgule", "point", "a la ligne"...) convertie par
   // regles, sans IA : active aussi en mode examen.
   dictatedPunctuation: true,
+  // false = mode bascule (une pression demarre, une autre arrete).
+  // true = mode maintien (push-to-talk) : enregistre tant que le raccourci
+  // reste enfonce. Necessite un hook clavier global (voir hold-to-talk.js).
+  holdToTalk: false,
 };
 
 class Settings {

@@ -102,6 +102,24 @@
         </div>
 
         <div class="champ">
+          <label for="reg-maintien" style="display: flex; align-items: center; gap: 8px;">
+            <input type="checkbox" id="reg-maintien" style="width: auto;" />
+            Maintenir la touche enfoncée pour enregistrer
+          </label>
+          <div class="aide-champ">
+            Par défaut (décoché) : une pression démarre l'enregistrement, une
+            autre l'arrête (mode bascule). Coché : l'enregistrement dure tant
+            que le raccourci reste enfoncé, plus intuitif pour certains
+            élèves. Point technique à connaître : ce mode utilise une écoute
+            clavier système capable de voir toutes les frappes (elle n'agit
+            que sur le raccourci choisi, mais certains antivirus la signalent
+            au premier lancement) ; contrairement au mode bascule, un
+            conflit avec une autre application utilisant le même raccourci
+            ne peut pas toujours être détecté.
+          </div>
+        </div>
+
+        <div class="champ">
           <label for="reg-modele">Taille du modèle Whisper</label>
           <select id="reg-modele">
             <option value="base">Base (rapide, pour tester, 142 Mo)</option>
@@ -195,7 +213,7 @@
       <section id="page-apropos" class="page">
         <h1>À propos</h1>
         <div class="a-propos">
-          <p><strong>VolubilActif</strong>, version 1.2.3.</p>
+          <p><strong>VolubilActif</strong>, version 1.3.0.</p>
           <p>
             Adaptation PLAI (Pôle Territorial de la Ville de Liège, école
             inclusive) de <a href="https://github.com/annece29-netizen/Volubil-IA">Volubil-IA</a>,

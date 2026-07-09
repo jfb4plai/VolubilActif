@@ -48,12 +48,40 @@ elle n'est jamais envoyée sur internet, il n'y a aucun compte à créer,
 aucun abonnement, aucune télémétrie. La seule exception, honnêtement
 documentée : le tout premier téléchargement du modèle de transcription.
 
-Une précision importante sur le raccourci : il fonctionne en mode **bascule**
-(une pression démarre, une autre arrête), pas en mode maintien-appui.
+Par défaut, le raccourci fonctionne en mode **bascule** (une pression
+démarre, une autre arrête). Un mode **maintien-appui** existe en option dans
+les réglages : l'enregistrement dure tant que la touche reste enfoncée, ce
+que certains trouvent plus intuitif. Ce mode a un coût technique honnête,
+détaillé plus bas dans "Maintien-appui : ce que ça implique".
 
 ```
    [Ctrl+Space]  ->  parle  ->  [Ctrl+Space]  ->  texte inséré
 ```
+
+## Maintien-appui : ce que ça implique
+
+Le mode maintien-appui (Réglages → "Maintenir la touche enfoncée pour
+enregistrer") a besoin de détecter le relâchement de la touche, même quand
+une autre application (Word, le navigateur) a le focus. Electron ne permet
+pas ça nativement : `globalShortcut` ne voit que l'appui, jamais le
+relâchement. VolubilActif utilise donc une petite bibliothèque
+([uiohook-napi](https://github.com/SnosMe/uiohook-napi)) qui installe une
+écoute clavier au niveau du système d'exploitation.
+
+À savoir, honnêtement :
+
+- Cette écoute est techniquement capable de voir toutes les frappes clavier
+  de la machine, même si VolubilActif ne réagit qu'à la combinaison choisie
+  dans les réglages et n'enregistre ni ne transmet rien d'autre.
+- Certains antivirus signalent ce type de bibliothèque au premier lancement,
+  car elle ressemble structurellement à un enregistreur de frappe.
+- Contrairement au mode bascule, un conflit avec une autre application
+  utilisant le même raccourci ne peut pas toujours être détecté à l'avance.
+
+C'est le seul compromis du genre dans l'application : c'est aussi la seule
+dépendance runtime du projet (le reste tourne sur les API de base
+d'Electron et de Node, sans rien installer d'autre). Le mode bascule, par
+défaut, n'utilise pas cette bibliothèque.
 
 ## Ce que l'outil ne fait pas (à dire clairement aux élèves)
 
@@ -173,7 +201,9 @@ fonctionne dans tous les modes : elle ne dépend pas d'Ollama.
 
 ## Limites connues (honnêtement)
 
-- Le raccourci fonctionne en bascule, pas en maintien-appui.
+- Le raccourci fonctionne en bascule par défaut ; le mode maintien-appui
+  (optionnel) a un coût en confidentialité, voir "Maintien-appui : ce que
+  ça implique" plus haut.
 - Les modèles de reconnaissance vocale sont entraînés surtout sur des voix
   d'adultes : la précision baisse avec les voix jeunes et le bruit de
   classe. Le modèle turbo aide, il ne fait pas de miracle. Tester avec

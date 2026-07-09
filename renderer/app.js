@@ -226,6 +226,7 @@ async function chargerReglages() {
   document.getElementById('reg-retention').value = reglagesCourants.historyRetention || 'normal';
   document.getElementById('reg-examen').checked = Boolean(reglagesCourants.examMode);
   document.getElementById('reg-ponctuation').checked = reglagesCourants.dictatedPunctuation !== false;
+  document.getElementById('reg-maintien').checked = Boolean(reglagesCourants.holdToTalk);
 
   basculerBlocOllama();
   if (reglagesCourants.mode === 'ameliore') testerOllamaEtAfficher();
@@ -340,6 +341,7 @@ document.getElementById('btn-enregistrer-reglages').addEventListener('click', as
     historyRetention: document.getElementById('reg-retention').value,
     examMode: document.getElementById('reg-examen').checked,
     dictatedPunctuation: document.getElementById('reg-ponctuation').checked,
+    holdToTalk: document.getElementById('reg-maintien').checked,
   };
   const statut = document.getElementById('statut-reglages');
   try {

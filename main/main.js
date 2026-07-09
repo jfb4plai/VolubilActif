@@ -21,6 +21,7 @@ const { History } = require('./history');
 const { Dictionary } = require('./dictionary');
 const whisper = require('./whisper');
 const { nettoyerSimple, appliquerPonctuationDictee, retirerHallucinations } = require('./cleanup-simple');
+const holdToTalk = require('./hold-to-talk');
 const { nettoyerAmeliore, detecterOllama } = require('./ollama');
 const { insererTexte } = require('./inserter');
 const recorderBridge = require('./recorder-bridge');
@@ -342,10 +343,36 @@ function creerTray() {
 // Raccourci clavier global
 // ---------------------------------------------------------------------------
 
+function modeRaccourciCourant() {
+  return settings.get('holdToTalk') ? 'maintien' : 'bascule';
+}
+
+// Enregistre l'accelerateur selon le mode courant. Mode bascule : globalShortcut
+// d'Electron (une pression demarre, une autre arrete). Mode maintien : hook
+// clavier global (hold-to-talk.js), qui detecte aussi le relachement.
 function enregistrerRaccourci(accelerateur) {
   globalShortcut.unregisterAll();
-  const succes = globalShortcut.register(accelerateur, () => surAppuiRaccourci());
-  return succes;
+  holdToTalk.arreterEcoute();
+
+  if (modeRaccourciCourant() === 'maintien') {
+    return holdToTalk.demarrerEcoute(accelerateur, {
+      onDemarrer: () => {
+        if (etat === 'idle') {
+          demarrerEnregistrement();
+        } else if (etat === 'processing') {
+          afficherHud('occupe', {});
+          setTimeout(() => {
+            if (etat === 'processing') afficherHud('transcription', {});
+          }, 600);
+        }
+      },
+      onArreter: () => {
+        if (etat === 'recording') arreterEnregistrement();
+      },
+    });
+  }
+
+  return globalShortcut.register(accelerateur, () => surAppuiRaccourci());
 }
 
 function initialiserRaccourci() {
@@ -548,11 +575,15 @@ function enregistrerGestionnairesIpc() {
 
   ipcMain.handle('settings:save', (_event, partiel) => {
     const ancienRaccourci = settings.get('hotkey');
+    const ancienMaintien = Boolean(settings.get('holdToTalk'));
     const misAJour = settings.set(partiel);
 
-    if (partiel.hotkey && partiel.hotkey !== ancienRaccourci) {
+    const raccourciChange = partiel.hotkey && partiel.hotkey !== ancienRaccourci;
+    const modeChange = partiel.holdToTalk !== undefined && Boolean(partiel.holdToTalk) !== ancienMaintien;
+
+    if (raccourciChange || modeChange) {
       // Le renderer doit d'abord tester via settings:test-hotkey ; ici on
-      // applique simplement le changement deja valide.
+      // applique simplement le changement deja valide (raccourci et/ou mode).
       enregistrerRaccourci(misAJour.hotkey);
     }
 
@@ -566,6 +597,15 @@ function enregistrerGestionnairesIpc() {
   });
 
   ipcMain.handle('settings:test-hotkey', (_event, accelerateur) => {
+    if (modeRaccourciCourant() === 'maintien') {
+      // En mode maintien, uiohook ne "reserve" pas exclusivement la
+      // combinaison aupres du systeme (contrairement a globalShortcut) : le
+      // test verifie seulement que ce module reconnait les touches choisies,
+      // pas l'absence de conflit avec une autre application.
+      const succes = enregistrerRaccourci(accelerateur);
+      if (!succes) enregistrerRaccourci(settings.get('hotkey'));
+      return { succes };
+    }
     globalShortcut.unregisterAll();
     const succes = globalShortcut.register(accelerateur, () => surAppuiRaccourci());
     if (!succes) {
@@ -738,4 +778,5 @@ app.on('window-all-closed', () => {
 app.on('before-quit', () => {
   app.isQuitting = true;
   globalShortcut.unregisterAll();
+  holdToTalk.arreterEcoute();
 });
