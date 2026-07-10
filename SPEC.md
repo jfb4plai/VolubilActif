@@ -69,6 +69,17 @@
 > Confirme cote serveur avant de conclure a un bug client : requete directe
 > a l'API GitHub et au latest.yml publie, tout etait correct (version,
 > sha512, asset present).
+> v1.5.3 (renderer) : robustesse du raccourci renforcee, verification que
+> la valeur ecrite sur le disque correspond bien a celle testee, message
+> d'erreur explicite sinon (jamais d'echec silencieux, demande explicite
+> de l'utilisateur).
+> v1.5.5 : page Dictionnaire reecrite pour un public non technique
+> (enseignants). "Forme correcte"/"Variantes" -> intitules et aides en
+> langage naturel avec exemple concret file (Whisper ecrit "ava dialo" au
+> lieu d'"Awa Diallo"). Boutons Exporter/Importer renommes en "Enregistrer
+> dans un fichier"/"Charger un fichier reçu" : le mot JSON n'apparait plus
+> dans l'UI (seulement en petite precision technique dans l'aide), les
+> enseignants n'ont pas a le connaitre.
 
 Application de dictée vocale 100 % locale, inspirée de Wispr Flow, pour Windows et macOS (Apple Silicon).
 Electron, aucune clé API, aucun coût récurrent, aucune donnée qui sort de la machine.

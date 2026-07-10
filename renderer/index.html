@@ -46,38 +46,57 @@
       <section id="page-dictionnaire" class="page">
         <h1>Dictionnaire personnel</h1>
         <p style="color: var(--gris-doux); max-width: 560px;">
-          Ajoute ici les mots et noms propres que Whisper déforme souvent
-          (noms de personnes, d'entreprises, mots techniques...). Chaque
-          entrée comprend une forme correcte et une liste de variantes mal
-          reconnues.
+          Whisper (le moteur qui transcrit la voix) déforme parfois les noms
+          propres ou les mots techniques. Exemple concret : tu dictes
+          « Awa Diallo », Whisper écrit « ava dialo ». Ajoute ici, une fois,
+          la bonne orthographe et la ou les façons dont Whisper l'a mal
+          comprise : à partir de là, chaque dictée future corrige ce mot
+          automatiquement, sans que tu aies à y repenser.
         </p>
 
         <div class="champ">
-          <label for="dico-correct">Forme correcte</label>
+          <label for="dico-correct">Le mot tel qu'il doit apparaître dans le texte</label>
           <input type="text" id="dico-correct" placeholder="Ex : Awa Diallo" />
+          <div class="aide-champ">
+            L'orthographe exacte que tu veux voir dans tes dictées : majuscules,
+            accents, tirets compris. C'est ce que l'app écrira à la place de
+            l'erreur.
+          </div>
         </div>
         <div class="champ">
-          <label for="dico-variantes">Variantes (séparées par des virgules)</label>
+          <label for="dico-variantes">Comment Whisper l'a mal écrit (une ou plusieurs fois)</label>
           <input type="text" id="dico-variantes" placeholder="awa dialo, ava diallo, awa djalo" />
+          <div class="aide-champ">
+            Note ici, séparées par des virgules, les erreurs que tu as déjà
+            vues apparaître dans tes dictées pour ce mot. Pas besoin d'être
+            exhaustif : l'app tolère aussi de petites variantes proches de
+            celles que tu indiques.
+          </div>
         </div>
-        <button class="principal" id="btn-ajouter-dico">Ajouter</button>
+        <button class="principal" id="btn-ajouter-dico">Ajouter au dictionnaire</button>
 
         <div class="champ" style="margin-top: 28px;">
-          <label>Partager le dictionnaire</label>
+          <label>Partager ce dictionnaire avec d'autres personnes</label>
           <div style="display: flex; gap: 8px;">
-            <button class="discret" id="btn-exporter-dico">Exporter (fichier JSON)</button>
-            <button class="discret" id="btn-importer-dico">Importer (fichier JSON)</button>
+            <button class="discret" id="btn-exporter-dico">Enregistrer dans un fichier</button>
+            <button class="discret" id="btn-importer-dico">Charger un fichier reçu</button>
           </div>
           <div class="aide-champ">
-            Un enseignant peut préparer le vocabulaire technique de son cours
-            (termes de métier, noms d'outils, sigles) puis distribuer le
-            fichier à ses élèves. L'import fusionne avec le dictionnaire
-            existant, rien n'est écrasé.
+            Utile en classe : un enseignant ajoute une fois le vocabulaire
+            technique de son cours (termes de métier, noms d'outils, sigles),
+            clique « Enregistrer dans un fichier », puis envoie ce fichier
+            (par mail, clé USB, partage réseau...) à ses élèves. Chaque
+            élève clique « Charger un fichier reçu » et sélectionne le
+            fichier reçu : ses propres mots ajoutés restent intacts, seuls
+            les nouveaux mots viennent s'ajouter. Aucune connaissance
+            technique requise : le fichier créé (au format JSON, un détail
+            sans importance pour l'usage) ne contient que les mots ajoutés
+            ici, rien d'autre.
           </div>
           <div id="statut-dico" class="aide-champ"></div>
         </div>
 
-        <h2 style="margin-top: 32px;">Entrées actuelles</h2>
+        <h2 style="margin-top: 32px;">Mots déjà enregistrés</h2>
         <div id="liste-dictionnaire"></div>
       </section>
 
@@ -213,7 +232,7 @@
       <section id="page-apropos" class="page">
         <h1>À propos</h1>
         <div class="a-propos">
-          <p><strong>VolubilActif</strong>, version 1.5.4. Les mises à jour s'installent automatiquement.</p>
+          <p><strong>VolubilActif</strong>, version 1.5.5. Les mises à jour s'installent automatiquement.</p>
           <p id="statut-maj" style="color: var(--gris-doux); font-size: 0.9em;"></p>
           <p>
             Adaptation PLAI (Pôle Territorial de la Ville de Liège, école

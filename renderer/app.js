@@ -119,7 +119,7 @@ async function chargerDictionnaire() {
   conteneur.innerHTML = '';
 
   if (entrees.length === 0) {
-    conteneur.innerHTML = '<div class="vide">Aucune entrée pour l\'instant.</div>';
+    conteneur.innerHTML = '<div class="vide">Aucun mot enregistré pour l\'instant. Ajoute ton premier mot ci-dessus.</div>';
     return;
   }
 
@@ -191,8 +191,8 @@ document.getElementById('btn-exporter-dico').addEventListener('click', async () 
     return;
   }
   statut.textContent = resultat.succes
-    ? `Dictionnaire exporté : ${resultat.chemin}`
-    : `Erreur d'export : ${resultat.erreur}`;
+    ? `Fichier enregistré : ${resultat.chemin}. Tu peux maintenant l'envoyer à qui tu veux.`
+    : `Échec de l'enregistrement : ${resultat.erreur}`;
 });
 
 document.getElementById('btn-importer-dico').addEventListener('click', async () => {
@@ -203,10 +203,10 @@ document.getElementById('btn-importer-dico').addEventListener('click', async () 
     return;
   }
   if (resultat.succes) {
-    statut.textContent = `Import terminé : ${resultat.ajoutees} entrée(s) ajoutée(s), ${resultat.completees} complétée(s).`;
+    statut.textContent = `Fichier chargé : ${resultat.ajoutees} mot(s) ajouté(s), ${resultat.completees} complété(s). Tes mots existants n'ont pas été touchés.`;
     chargerDictionnaire();
   } else {
-    statut.textContent = `Erreur d'import : ${resultat.erreur}`;
+    statut.textContent = `Échec du chargement : ${resultat.erreur}`;
   }
 });
 
@@ -291,13 +291,30 @@ document.getElementById('reg-raccourci').addEventListener('click', () => {
       window.volubil.testHotkey(accelerateur).then(async ({ succes }) => {
         if (succes) {
           champ.value = accelerateur;
+          statut.textContent = 'Enregistrement...';
+          statut.style.color = '';
           // Le test valide juste que la combinaison n'est pas deja prise :
           // on enregistre tout de suite, sans attendre un clic sur le gros
           // bouton Enregistrer plus bas (sinon "valide" donne l'illusion
-          // d'etre deja sauvegarde, alors que ca ne l'est pas).
-          reglagesCourants = await window.volubil.saveSettings({ hotkey: accelerateur });
-          statut.textContent = 'Raccourci enregistré.';
-          statut.style.color = 'var(--vert)';
+          // d'etre deja sauvegarde, alors que ca ne l'est pas). Jamais
+          // d'echec silencieux : on verifie que la valeur ecrite sur le
+          // disque correspond vraiment a ce qui vient d'etre teste.
+          try {
+            const misAJour = await window.volubil.saveSettings({ hotkey: accelerateur });
+            if (misAJour.hotkey === accelerateur) {
+              reglagesCourants = misAJour;
+              statut.textContent = 'Raccourci enregistré.';
+              statut.style.color = 'var(--vert)';
+            } else {
+              champ.value = misAJour.hotkey;
+              statut.textContent = "Échec de l'enregistrement : le raccourci précédent a été conservé. Réessaie, ou ouvre le dossier des données (bouton plus bas) pour vérifier settings.json.";
+              statut.style.color = 'var(--rouge)';
+            }
+          } catch (err) {
+            champ.value = reglagesCourants.hotkey;
+            statut.textContent = `Échec de l'enregistrement : ${err.message || err}. Le raccourci précédent a été conservé.`;
+            statut.style.color = 'var(--rouge)';
+          }
         } else {
           champ.value = reglagesCourants.hotkey;
           statut.textContent = 'Ce raccourci est déjà pris, essaie une autre combinaison.';

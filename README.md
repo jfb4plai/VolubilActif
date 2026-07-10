@@ -211,11 +211,14 @@ dictionnaire personnel corrige ça : tu ajoutes la forme correcte et les
 variantes mal reconnues, et chaque dictée est corrigée automatiquement
 (avec une tolérance aux petites différences).
 
-Nouveau dans VolubilActif : l'onglet Dictionnaire propose **Exporter** et
-**Importer** (fichier JSON). Usage typique : l'enseignant de pâtisserie
-prépare une fois les termes de son cours mal reconnus par Whisper, exporte
-le fichier, et chaque élève l'importe. L'import fusionne avec le
-dictionnaire existant, rien n'est écrasé.
+Nouveau dans VolubilActif : l'onglet Dictionnaire propose **"Enregistrer
+dans un fichier"** et **"Charger un fichier reçu"**, pour le partager sans
+connaissance technique particulière. Usage typique : l'enseignant de
+pâtisserie prépare une fois les termes de son cours mal reconnus par
+Whisper, clique "Enregistrer dans un fichier", envoie ce fichier à ses
+élèves (mail, clé USB...), et chaque élève clique "Charger un fichier
+reçu". Le chargement fusionne avec le dictionnaire déjà présent, rien
+n'est écrasé.
 
 **La correction rapide** : après chaque dictée, la petite fenêtre d'état
 reste affichée 10 secondes avec un bouton crayon "Corriger". L'élève relit,
