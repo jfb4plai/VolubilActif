@@ -39,6 +39,13 @@
 > Enregistrer ultérieur écrase silencieusement un changement fait via le
 > tray. Vérifié : détection de modèle testée contre le vrai dossier
 > userData, lancement réel de l'app sans erreur.
+> v1.5.1 : statut de mise à jour visible sur la page A propos (canal IPC
+> `update:state` poussé depuis main/updater.js + `update:get-status` pour
+> l'etat au chargement). Corrige le defaut de la v1.4.0 : verification et
+> erreurs totalement silencieuses, aucun moyen de savoir si le mecanisme
+> fonctionnait. Rappel important : fermer la fenetre ne quitte pas l'app
+> (reste dans le tray), donc pas de nouvelle verification sans un vrai
+> redemarrage (Quitter puis relancer).
 
 Application de dictée vocale 100 % locale, inspirée de Wispr Flow, pour Windows et macOS (Apple Silicon).
 Electron, aucune clé API, aucun coût récurrent, aucune donnée qui sort de la machine.

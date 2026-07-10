@@ -122,9 +122,18 @@ Plus besoin de retélécharger l'installateur à chaque nouvelle version.
   une application non signée : une mise à jour appliquée automatiquement
   peut nécessiter de refaire le geste "clic droit > Ouvrir" une fois la
   nouvelle version en place, comme au premier lancement.
-- Cette version (1.4.0) ne se propose pas de mise à jour vers elle-même :
-  c'est la première version qui sait vérifier. À partir de la suivante, la
-  mise à jour automatique fonctionne normalement.
+- Cette fonctionnalité a été ajoutée en 1.4.0 : cette version-là ne se
+  propose pas de mise à jour vers elle-même, c'est la première qui sait
+  vérifier. À partir de la suivante, la mise à jour automatique fonctionne
+  normalement.
+- La page "À propos" affiche l'état de la vérification en temps réel
+  (vérification en cours, mise à jour trouvée, téléchargement, à jour,
+  ou échec) : si rien ne se passe après un moment, ouvre cette page pour
+  voir ce qu'il se passe réellement plutôt que de deviner.
+- Fermer la fenêtre ne quitte pas l'application (elle reste dans la barre
+  système) : la vérification n'a lieu qu'au vrai démarrage. Pour forcer une
+  nouvelle vérification, quitte complètement (menu de la barre système >
+  Quitter) puis relance.
 
 ## Installation Windows
 

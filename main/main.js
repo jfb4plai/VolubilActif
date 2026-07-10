@@ -35,6 +35,11 @@ let settings;
 let history;
 let dictionary;
 
+// Dernier etat connu de la mise a jour (verification/telechargement/erreur...),
+// garde en memoire pour repondre a la page A propos meme si elle s'ouvre
+// apres que l'evenement soit deja passe.
+let dernierEtatMiseAJour = { etat: 'inactif' };
+
 let fenetrePrincipale = null;
 let fenetreHud = null;
 let fenetreRecorder = null;
@@ -668,6 +673,8 @@ function enregistrerGestionnairesIpc() {
     return detecterOllama(settings.getAll());
   });
 
+  ipcMain.handle('update:get-status', () => dernierEtatMiseAJour);
+
   ipcMain.handle('whisper:download-model', async (event, taille) => {
     try {
       await whisper.telechargerModele(app.getPath('userData'), taille, (progression) => {
@@ -807,7 +814,12 @@ app.whenReady().then(async () => {
 
   // Verification hors mode developpement uniquement : en local (npm start),
   // l'app n'est pas empaquetee et electron-updater n'a rien a verifier.
-  if (app.isPackaged) initialiserMiseAJour();
+  if (app.isPackaged) {
+    initialiserMiseAJour((etat, donnees) => {
+      dernierEtatMiseAJour = { etat, ...donnees };
+      if (fenetrePrincipale) fenetrePrincipale.webContents.send('update:state', dernierEtatMiseAJour);
+    });
+  }
 
   if (settings.get('onboardingDone')) {
     creerFenetrePrincipale();

@@ -48,6 +48,14 @@ contextBridge.exposeInMainWorld('volubil', {
   // Onboarding.
   terminerOnboarding: () => ipcRenderer.invoke('onboarding:done'),
 
+  // Mise a jour automatique.
+  getEtatMiseAJour: () => ipcRenderer.invoke('update:get-status'),
+  onEtatMiseAJour: (callback) => {
+    const gestionnaire = (_event, etat) => callback(etat);
+    ipcRenderer.on('update:state', gestionnaire);
+    return () => ipcRenderer.removeListener('update:state', gestionnaire);
+  },
+
   // Notifications pousees par le main vers la fenetre principale (rafraichir l'affichage).
   onHistoriqueMisAJour: (callback) => {
     const gestionnaire = () => callback();

@@ -376,6 +376,42 @@ window.volubil.onHistoriqueMisAJour(async () => {
 });
 
 // ---------------------------------------------------------------------------
+// Mise a jour automatique (page A propos)
+// ---------------------------------------------------------------------------
+
+function afficherStatutMiseAJour(donnees) {
+  const el = document.getElementById('statut-maj');
+  if (!el) return;
+  switch (donnees.etat) {
+    case 'verification':
+      el.textContent = 'Vérification des mises à jour...';
+      break;
+    case 'disponible':
+      el.textContent = `Nouvelle version ${donnees.version} trouvée, téléchargement en cours...`;
+      break;
+    case 'telechargement':
+      el.textContent = `Téléchargement de la mise à jour : ${donnees.pourcentage}%`;
+      break;
+    case 'prete':
+      el.textContent = `Mise à jour ${donnees.version} prête, redémarre l'application pour l'appliquer.`;
+      break;
+    case 'a-jour':
+      el.textContent = 'VolubilActif est à jour.';
+      break;
+    case 'erreur':
+      el.textContent = "Vérification des mises à jour impossible pour l'instant (pas de réseau ?).";
+      break;
+    default:
+      el.textContent = '';
+  }
+}
+
+if (window.volubil.getEtatMiseAJour) {
+  window.volubil.getEtatMiseAJour().then(afficherStatutMiseAJour);
+  window.volubil.onEtatMiseAJour(afficherStatutMiseAJour);
+}
+
+// ---------------------------------------------------------------------------
 // Chargement initial
 // ---------------------------------------------------------------------------
 
