@@ -288,10 +288,15 @@ document.getElementById('reg-raccourci').addEventListener('click', () => {
       const accelerateur = touches.join('+');
       document.removeEventListener('keydown', surTouche);
 
-      window.volubil.testHotkey(accelerateur).then(({ succes }) => {
+      window.volubil.testHotkey(accelerateur).then(async ({ succes }) => {
         if (succes) {
           champ.value = accelerateur;
-          statut.textContent = 'Raccourci validé.';
+          // Le test valide juste que la combinaison n'est pas deja prise :
+          // on enregistre tout de suite, sans attendre un clic sur le gros
+          // bouton Enregistrer plus bas (sinon "valide" donne l'illusion
+          // d'etre deja sauvegarde, alors que ca ne l'est pas).
+          reglagesCourants = await window.volubil.saveSettings({ hotkey: accelerateur });
+          statut.textContent = 'Raccourci enregistré.';
           statut.style.color = 'var(--vert)';
         } else {
           champ.value = reglagesCourants.hotkey;

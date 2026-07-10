@@ -54,6 +54,13 @@
 > empecherNavigationExterne() dans main.js intercepte les deux cas et
 > ouvre dans le navigateur systeme (shell.openExternal), appliquee a
 > fenetrePrincipale et fenetreOnboarding.
+> v1.5.3 : le champ de capture du raccourci enregistre desormais tout de
+> suite des qu'un test reussit (statut "Raccourci enregistre."), au lieu
+> d'attendre un clic separe sur le bouton Enregistrer general en bas de
+> Reglages. Bug rencontre en usage reel : "Raccourci valide" donnait
+> l'illusion d'etre sauvegarde ; sans clic explicite sur Enregistrer, la
+> valeur testee (ex. Alt+Q) n'etait jamais ecrite dans settings.json,
+> confirme par lecture directe du fichier reel.
 
 Application de dictée vocale 100 % locale, inspirée de Wispr Flow, pour Windows et macOS (Apple Silicon).
 Electron, aucune clé API, aucun coût récurrent, aucune donnée qui sort de la machine.
