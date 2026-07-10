@@ -130,10 +130,11 @@ Plus besoin de retélécharger l'installateur à chaque nouvelle version.
   (vérification en cours, mise à jour trouvée, téléchargement, à jour,
   ou échec) : si rien ne se passe après un moment, ouvre cette page pour
   voir ce qu'il se passe réellement plutôt que de deviner.
-- Fermer la fenêtre ne quitte pas l'application (elle reste dans la barre
-  système) : la vérification n'a lieu qu'au vrai démarrage. Pour forcer une
-  nouvelle vérification, quitte complètement (menu de la barre système >
-  Quitter) puis relance.
+- La vérification a lieu au démarrage, puis automatiquement toutes les
+  4 heures tant que l'app reste ouverte (elle continue de tourner en tâche
+  de fond quand tu fermes la fenêtre, sans besoin de la relancer sans
+  arrêt). Pour forcer une vérification immédiate, quitte complètement
+  (menu de la barre système > Quitter) puis relance.
 
 ## Installation Windows
 

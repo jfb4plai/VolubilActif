@@ -61,6 +61,14 @@
 > l'illusion d'etre sauvegarde ; sans clic explicite sur Enregistrer, la
 > valeur testee (ex. Alt+Q) n'etait jamais ecrite dans settings.json,
 > confirme par lecture directe du fichier reel.
+> v1.5.4 : verification de mise a jour periodique (toutes les 4h, en plus
+> du demarrage). Bug rencontre en usage reel : une instance restee ouverte
+> depuis avant la publication d'une nouvelle version affichait "a jour" a
+> tort, car la verification unique au demarrage ne se refaisait jamais
+> tant que l'app tournait (reste dans le tray a la fermeture de fenetre).
+> Confirme cote serveur avant de conclure a un bug client : requete directe
+> a l'API GitHub et au latest.yml publie, tout etait correct (version,
+> sha512, asset present).
 
 Application de dictée vocale 100 % locale, inspirée de Wispr Flow, pour Windows et macOS (Apple Silicon).
 Electron, aucune clé API, aucun coût récurrent, aucune donnée qui sort de la machine.
