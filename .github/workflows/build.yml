@@ -88,6 +88,10 @@ jobs:
       - name: Verifier la syntaxe de tous les fichiers
         run: npm run check
 
+      - name: Configurer l'environnement MSVC (node-gyp ne detecte pas Visual Studio seul)
+        if: matrix.os == 'windows-latest'
+        uses: ilammy/msvc-dev-cmd@v1
+
       - name: Construire l'installateur
         run: npx electron-builder --publish never
 
