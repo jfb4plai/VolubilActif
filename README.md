@@ -108,6 +108,24 @@ Si Ollama est absent ou éteint, VolubilActif revient automatiquement au mode
 simple, sans rien casser. Et en **mode examen**, le mode amélioré est ignoré
 d'office : transcription brute, nettoyage de base uniquement.
 
+## Mise à jour automatique
+
+À partir de la version 1.4.0, VolubilActif vérifie au démarrage si une
+nouvelle version existe sur GitHub, la télécharge en tâche de fond, et te
+propose de redémarrer pour l'appliquer (jamais automatique sans ton accord).
+Plus besoin de retélécharger l'installateur à chaque nouvelle version.
+
+À savoir honnêtement :
+
+- Sur Windows, ça fonctionne sans accroc.
+- Sur Mac, Gatekeeper (le contrôle de sécurité d'Apple) est plus strict avec
+  une application non signée : une mise à jour appliquée automatiquement
+  peut nécessiter de refaire le geste "clic droit > Ouvrir" une fois la
+  nouvelle version en place, comme au premier lancement.
+- Cette version (1.4.0) ne se propose pas de mise à jour vers elle-même :
+  c'est la première version qui sait vérifier. À partir de la suivante, la
+  mise à jour automatique fonctionne normalement.
+
 ## Installation Windows
 
 1. Va sur la page **[Téléchargements](https://github.com/jfb4plai/VolubilActif/releases/latest)**

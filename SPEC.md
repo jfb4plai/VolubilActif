@@ -9,6 +9,15 @@
 > réglage `dictatedPunctuation` (v1.2.0 : ponctuation dictée convertie par
 > règles dans cleanup-simple.js, active dans les deux modes et en mode
 > examen ; garde-fous "point de vue", "un point", nombres "3 virgule 5").
+> v1.4.0 : mise à jour automatique via electron-updater (main/updater.js),
+> deuxième et dernière dépendance runtime prévue. Config `build.publish`
+> (provider github) dans package.json, cible `zip` ajoutée pour macOS en
+> plus du `dmg` (Squirrel.Mac a besoin d'un zip, pas d'un dmg, pour
+> appliquer les mises à jour). Vérifié localement avant publication :
+> `electron-builder --publish never` génère bien `dist/latest.yml` avec le
+> bon nom de fichier et le sha512, et l'app packagée (`--dir`) démarre sans
+> erreur avec le nouveau module charge. CI : `dist/latest*.yml` et
+> `dist/*.zip` ajoutés aux fichiers publiés sur la release GitHub.
 > v1.3.0 : mode maintien-appui (`holdToTalk`, main/hold-to-talk.js) via
 > uiohook-napi, seule dépendance runtime du projet (rompt volontairement la
 > règle "ZÉRO dépendance" de la spec upstream) : hook clavier global

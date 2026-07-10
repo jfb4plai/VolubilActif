@@ -22,6 +22,7 @@ const { Dictionary } = require('./dictionary');
 const whisper = require('./whisper');
 const { nettoyerSimple, appliquerPonctuationDictee, retirerHallucinations } = require('./cleanup-simple');
 const holdToTalk = require('./hold-to-talk');
+const { initialiserMiseAJour } = require('./updater');
 const { nettoyerAmeliore, detecterOllama } = require('./ollama');
 const { insererTexte } = require('./inserter');
 const recorderBridge = require('./recorder-bridge');
@@ -759,6 +760,10 @@ app.whenReady().then(async () => {
   creerFenetreRecorder();
   creerFenetreHud();
   initialiserRaccourci();
+
+  // Verification hors mode developpement uniquement : en local (npm start),
+  // l'app n'est pas empaquetee et electron-updater n'a rien a verifier.
+  if (app.isPackaged) initialiserMiseAJour();
 
   if (settings.get('onboardingDone')) {
     creerFenetrePrincipale();

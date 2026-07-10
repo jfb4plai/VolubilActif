@@ -102,10 +102,12 @@ jobs:
 
             Mode d'emploi complet dans le [README](https://github.com/jfb4plai/VolubilActif#readme).
 
-            Chaque installateur est accompagné d'un fichier `.sha256.txt` : il permet de vérifier que le fichier téléchargé est bien celui construit ici, sans modification en chemin.
+            Chaque installateur est accompagné d'un fichier `.sha256.txt` : il permet de vérifier que le fichier téléchargé est bien celui construit ici, sans modification en chemin. À partir de cette version, VolubilActif se met à jour tout seul : plus besoin de retélécharger manuellement les prochaines versions.
           files: |
             dist/*.exe
             dist/*.dmg
+            dist/*.zip
+            dist/latest*.yml
             dist/*.sha256.txt
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
