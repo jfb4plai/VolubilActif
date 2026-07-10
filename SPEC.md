@@ -80,6 +80,17 @@
 > dans un fichier"/"Charger un fichier reçu" : le mot JSON n'apparait plus
 > dans l'UI (seulement en petite precision technique dans l'aide), les
 > enseignants n'ont pas a le connaitre.
+> v1.6.0 : import CSV en plus du JSON (dictionary:import detecte
+> l'extension). csvVersEntrees() dans dictionary.js, parseur maison sans
+> dependance (gere les guillemets/virgules internes, format Excel), meme
+> Dictionary.fusionner() en aval, donc memes garanties de non-ecrasement.
+> Priorite explicite de l'utilisateur : "l'import est le plus important" :
+> un enseignant peut desormais preparer son vocabulaire directement dans
+> un tableur, sans jamais ouvrir VolubilActif au prealable, au lieu de
+> devoir ajouter chaque mot un par un via le formulaire. Verifie avant de
+> pousser : test du parseur (guillemets, virgule interne, ligne vide,
+> espaces), puis test d'integration complet avec un vrai fichier CSV sur
+> disque a travers Dictionary.fusionner(), dossier de test isole.
 
 Application de dictée vocale 100 % locale, inspirée de Wispr Flow, pour Windows et macOS (Apple Silicon).
 Electron, aucune clé API, aucun coût récurrent, aucune donnée qui sort de la machine.

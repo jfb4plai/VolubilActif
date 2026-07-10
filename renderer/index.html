@@ -79,19 +79,22 @@
           <label>Partager ce dictionnaire avec d'autres personnes</label>
           <div style="display: flex; gap: 8px;">
             <button class="discret" id="btn-exporter-dico">Enregistrer dans un fichier</button>
-            <button class="discret" id="btn-importer-dico">Charger un fichier reçu</button>
+            <button class="discret" id="btn-importer-dico">Charger un fichier de vocabulaire</button>
           </div>
           <div class="aide-champ">
-            Utile en classe : un enseignant ajoute une fois le vocabulaire
-            technique de son cours (termes de métier, noms d'outils, sigles),
-            clique « Enregistrer dans un fichier », puis envoie ce fichier
-            (par mail, clé USB, partage réseau...) à ses élèves. Chaque
-            élève clique « Charger un fichier reçu » et sélectionne le
-            fichier reçu : ses propres mots ajoutés restent intacts, seuls
-            les nouveaux mots viennent s'ajouter. Aucune connaissance
-            technique requise : le fichier créé (au format JSON, un détail
-            sans importance pour l'usage) ne contient que les mots ajoutés
-            ici, rien d'autre.
+            Deux façons d'obtenir le fichier à charger :<br />
+            <strong>1. Reçu d'un collègue</strong> qui a lui-même cliqué
+            « Enregistrer dans un fichier » depuis VolubilActif, puis
+            envoyé ce fichier (mail, clé USB, partage réseau...).<br />
+            <strong>2. Préparé toi-même dans Excel ou Google Sheets</strong>,
+            sans jamais ouvrir VolubilActif au préalable : une ligne par mot,
+            avec le mot correct puis ses erreurs de transcription connues,
+            séparés par des virgules, puis « Enregistrer sous... » au format
+            CSV. Exemple d'une ligne :
+            <code>Awa Diallo, awa dialo, ava diallo</code><br />
+            Dans les deux cas, charger le fichier complète le dictionnaire
+            existant sans jamais l'écraser : tes propres mots restent
+            intacts, seuls les nouveaux s'ajoutent.
           </div>
           <div id="statut-dico" class="aide-champ"></div>
         </div>
@@ -232,7 +235,7 @@
       <section id="page-apropos" class="page">
         <h1>À propos</h1>
         <div class="a-propos">
-          <p><strong>VolubilActif</strong>, version 1.5.5. Les mises à jour s'installent automatiquement.</p>
+          <p><strong>VolubilActif</strong>, version 1.6.0. Les mises à jour s'installent automatiquement.</p>
           <p id="statut-maj" style="color: var(--gris-doux); font-size: 0.9em;"></p>
           <p>
             Adaptation PLAI (Pôle Territorial de la Ville de Liège, école

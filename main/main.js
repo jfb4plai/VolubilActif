@@ -743,18 +743,27 @@ function enregistrerGestionnairesIpc() {
 
   ipcMain.handle('dictionary:import', async () => {
     const { canceled, filePaths } = await dialog.showOpenDialog({
-      title: 'Importer un dictionnaire',
-      filters: [{ name: 'JSON', extensions: ['json'] }],
+      title: 'Charger un fichier de vocabulaire',
+      filters: [
+        { name: 'Fichier de vocabulaire (JSON ou CSV)', extensions: ['json', 'csv'] },
+      ],
       properties: ['openFile'],
     });
     if (canceled || !filePaths || !filePaths[0]) return { succes: false, annule: true };
+    const chemin = filePaths[0];
     try {
-      const contenu = fs.readFileSync(filePaths[0], 'utf8');
-      const json = JSON.parse(contenu);
-      if (!Array.isArray(json.entries)) {
-        return { succes: false, erreur: 'Fichier invalide : liste "entries" absente.' };
+      const contenu = fs.readFileSync(chemin, 'utf8');
+      let entrees;
+      if (chemin.toLowerCase().endsWith('.csv')) {
+        entrees = dictionary.csvVersEntrees(contenu);
+      } else {
+        const json = JSON.parse(contenu);
+        if (!Array.isArray(json.entries)) {
+          return { succes: false, erreur: 'Fichier invalide : liste "entries" absente.' };
+        }
+        entrees = json.entries;
       }
-      const bilan = dictionary.fusionner(json.entries);
+      const bilan = dictionary.fusionner(entrees);
       return { succes: true, ...bilan };
     } catch (err) {
       return { succes: false, erreur: err.message };

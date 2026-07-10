@@ -11,6 +11,56 @@ function normaliser(mot) {
     .replace(/[\s'\-]/g, ''); // retire espaces, apostrophes, traits d'union
 }
 
+// Analyse une ligne CSV en respectant les guillemets (une cellule peut
+// contenir une virgule si elle est entre guillemets, comme Excel/Tableur
+// le produisent). Pas de dependance externe : format simple, suffisant ici.
+function analyserLigneCsv(ligne) {
+  const champs = [];
+  let champCourant = '';
+  let dansGuillemets = false;
+
+  for (let i = 0; i < ligne.length; i++) {
+    const c = ligne[i];
+    if (dansGuillemets) {
+      if (c === '"') {
+        if (ligne[i + 1] === '"') {
+          champCourant += '"';
+          i++;
+        } else {
+          dansGuillemets = false;
+        }
+      } else {
+        champCourant += c;
+      }
+    } else if (c === '"') {
+      dansGuillemets = true;
+    } else if (c === ',') {
+      champs.push(champCourant);
+      champCourant = '';
+    } else {
+      champCourant += c;
+    }
+  }
+  champs.push(champCourant);
+  return champs.map((c) => c.trim());
+}
+
+// Convertit un fichier CSV (une ligne par mot : forme correcte, puis ses
+// variantes mal reconnues separees par des virgules) au meme format que
+// fusionner() attend. Un enseignant peut preparer ce fichier directement
+// dans Excel ou Google Sheets, sans jamais ouvrir VolubilActif au prealable.
+function csvVersEntrees(contenu) {
+  const lignes = contenu.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  const entrees = [];
+  for (const ligne of lignes) {
+    const champs = analyserLigneCsv(ligne).filter((c) => c.length > 0);
+    if (champs.length === 0) continue;
+    const [correct, ...variants] = champs;
+    entrees.push({ correct, variants });
+  }
+  return entrees;
+}
+
 // Distance de Levenshtein classique (matrice complete, suffisant pour des mots courts).
 function levenshtein(a, b) {
   const m = a.length;
@@ -237,4 +287,4 @@ class Dictionary {
   }
 }
 
-module.exports = { Dictionary, normaliser, levenshtein };
+module.exports = { Dictionary, normaliser, levenshtein, csvVersEntrees };

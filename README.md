@@ -212,12 +212,18 @@ variantes mal reconnues, et chaque dictée est corrigée automatiquement
 (avec une tolérance aux petites différences).
 
 Nouveau dans VolubilActif : l'onglet Dictionnaire propose **"Enregistrer
-dans un fichier"** et **"Charger un fichier reçu"**, pour le partager sans
-connaissance technique particulière. Usage typique : l'enseignant de
-pâtisserie prépare une fois les termes de son cours mal reconnus par
-Whisper, clique "Enregistrer dans un fichier", envoie ce fichier à ses
-élèves (mail, clé USB...), et chaque élève clique "Charger un fichier
-reçu". Le chargement fusionne avec le dictionnaire déjà présent, rien
+dans un fichier"** et **"Charger un fichier de vocabulaire"**, pour le
+partager sans connaissance technique particulière. Deux façons de
+préparer ce qu'on charge :
+
+- Reçu d'un collègue qui a exporté son dictionnaire depuis VolubilActif.
+- Préparé directement dans Excel ou Google Sheets, sans jamais ouvrir
+  VolubilActif au préalable : une ligne par mot, le mot correct puis ses
+  erreurs de transcription connues séparées par des virgules, puis
+  enregistré au format CSV. Exemple d'une ligne :
+  `Awa Diallo, awa dialo, ava diallo`.
+
+Le chargement fusionne toujours avec le dictionnaire déjà présent, rien
 n'est écrasé.
 
 **La correction rapide** : après chaque dictée, la petite fenêtre d'état
