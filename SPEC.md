@@ -31,6 +31,14 @@
 > (`node_modules/uiohook-napi/prebuilds/`). Aucune recompilation n'est
 > nécessaire ; les correctifs Python/MSVC des versions intermédiaires ont été
 > retirés du workflow, devenus inutiles.
+> v1.5.0 : changement rapide de langue et de modèle depuis le menu du tray
+> (sous-menus radio, même principe que mode simple/amélioré). Un modèle non
+> téléchargé apparaît désactivé (`whisper.modeleDejaTelecharge`). Correctif
+> associé dans app.js : `onHistoriqueMisAJour` resynchronise les champs
+> modèle/langue de Réglages s'ils étaient déjà affichés, pour éviter qu'un
+> Enregistrer ultérieur écrase silencieusement un changement fait via le
+> tray. Vérifié : détection de modèle testée contre le vrai dossier
+> userData, lancement réel de l'app sans erreur.
 
 Application de dictée vocale 100 % locale, inspirée de Wispr Flow, pour Windows et macOS (Apple Silicon).
 Electron, aucune clé API, aucun coût récurrent, aucune donnée qui sort de la machine.

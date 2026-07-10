@@ -175,6 +175,15 @@ Un petit parcours de bienvenue s'affiche :
    conseillé pour un élève). Le téléchargement se fait une seule fois.
 3. Rappel du raccourci clavier et petit mode d'emploi.
 
+## Changer de langue ou de modèle sans ouvrir la fenêtre
+
+Le menu de l'icône VolubilActif dans la barre système (clic droit) propose,
+en plus du mode simple/amélioré, un accès rapide à la **langue** et au
+**modèle de transcription** en cours, sans passer par les réglages
+complets. Utile pour basculer d'une dictée en français vers une réunion en
+anglais, par exemple. Un modèle pas encore téléchargé apparaît grisé
+(« non téléchargé ») : le télécharger d'abord dans les réglages complets.
+
 ## Réglages utiles en classe
 
 - **Conservation des dictées** : "Mode privé" pour un ordinateur partagé.

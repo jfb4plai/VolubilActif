@@ -240,8 +240,33 @@ function creerFenetreCorrection(entree) {
 // Tray
 // ---------------------------------------------------------------------------
 
+const NOMS_LANGUES = { fr: 'Français', auto: 'Automatique' };
+const NOMS_MODELES = { base: 'Base (rapide)', small: 'Small (précis)', turbo: 'Turbo (le plus précis)' };
+
 function construireMenuTray() {
   const modeAmeliore = settings.get('mode') === 'ameliore';
+  const langueCourante = settings.get('language');
+  const modeleCourant = settings.get('modelSize');
+
+  const sousMenuLangue = Object.keys(NOMS_LANGUES).map((code) => ({
+    label: NOMS_LANGUES[code],
+    type: 'radio',
+    checked: langueCourante === code,
+    click: () => changerLangue(code),
+  }));
+
+  // Un modele non encore telecharge est propose mais desactive : on evite
+  // de basculer vers un fichier absent (voir Reglages pour le telecharger).
+  const sousMenuModele = Object.keys(NOMS_MODELES).map((taille) => {
+    const disponible = whisper.modeleDejaTelecharge(app.getPath('userData'), taille);
+    return {
+      label: disponible ? NOMS_MODELES[taille] : `${NOMS_MODELES[taille]} (non téléchargé)`,
+      type: 'radio',
+      checked: modeleCourant === taille,
+      enabled: disponible,
+      click: () => changerModele(taille),
+    };
+  });
 
   return Menu.buildFromTemplate([
     { label: 'Ouvrir VolubilActif', click: () => creerFenetrePrincipale() },
@@ -260,6 +285,9 @@ function construireMenuTray() {
       checked: modeAmeliore,
       click: () => changerMode('ameliore'),
     },
+    { type: 'separator' },
+    { label: 'Langue', submenu: sousMenuLangue },
+    { label: 'Modèle de transcription', submenu: sousMenuModele },
     { type: 'separator' },
     {
       label: 'Mode examen (transcription brute, sans IA)',
@@ -290,6 +318,22 @@ function changerMode(mode) {
 
 function changerModeExamen(actif) {
   settings.set({ examMode: Boolean(actif) });
+  rafraichirMenuTray();
+  if (fenetrePrincipale) fenetrePrincipale.webContents.send('history:updated');
+}
+
+function changerLangue(langue) {
+  settings.set({ language: langue });
+  rafraichirMenuTray();
+  if (fenetrePrincipale) fenetrePrincipale.webContents.send('history:updated');
+}
+
+function changerModele(taille) {
+  // Garde-fou : le clic est deja bloque par le menu (item desactive) si le
+  // modele n'est pas telecharge, mais on revalide au cas ou l'etat aurait
+  // change entre la construction du menu et le clic.
+  if (!whisper.modeleDejaTelecharge(app.getPath('userData'), taille)) return;
+  settings.set({ modelSize: taille });
   rafraichirMenuTray();
   if (fenetrePrincipale) fenetrePrincipale.webContents.send('history:updated');
 }

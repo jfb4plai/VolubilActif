@@ -363,8 +363,16 @@ document.getElementById('btn-enregistrer-reglages').addEventListener('click', as
 // Rafraichissement pousse par le main (nouvelle dictee, changement de raccourci)
 // ---------------------------------------------------------------------------
 
-window.volubil.onHistoriqueMisAJour(() => {
+window.volubil.onHistoriqueMisAJour(async () => {
   chargerAccueil();
+
+  // Le modele et la langue peuvent changer depuis le menu de la barre
+  // systeme : on resynchronise ces deux champs precis (sans recharger tout
+  // le formulaire, pour ne pas ecraser une saisie en cours ailleurs).
+  const reglages = await window.volubil.getSettings();
+  reglagesCourants = reglages;
+  document.getElementById('reg-modele').value = reglages.modelSize;
+  document.getElementById('reg-langue').value = reglages.language;
 });
 
 // ---------------------------------------------------------------------------
