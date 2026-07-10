@@ -46,6 +46,14 @@
 > fonctionnait. Rappel important : fermer la fenetre ne quitte pas l'app
 > (reste dans le tray), donc pas de nouvelle verification sans un vrai
 > redemarrage (Quitter puis relancer).
+> v1.5.2 : correction des liens externes (GitHub, Ollama) qui remplacaient
+> la fenetre de l'app par le site web, sans retour possible. Cause : un
+> lien sans target="_blank" navigue la BrowserWindow elle-meme (evenement
+> will-navigate), et meme avec target="_blank" Electron 15+ bloque
+> silencieusement l'ouverture sans setWindowOpenHandler explicite.
+> empecherNavigationExterne() dans main.js intercepte les deux cas et
+> ouvre dans le navigateur systeme (shell.openExternal), appliquee a
+> fenetrePrincipale et fenetreOnboarding.
 
 Application de dictée vocale 100 % locale, inspirée de Wispr Flow, pour Windows et macOS (Apple Silicon).
 Electron, aucune clé API, aucun coût récurrent, aucune donnée qui sort de la machine.

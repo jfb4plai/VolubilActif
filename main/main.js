@@ -63,6 +63,22 @@ function cheminIcone() {
 // Fenetres
 // ---------------------------------------------------------------------------
 
+// Empeche une fenetre de l'app de naviguer vers un site externe : sans ca,
+// cliquer un lien http(s) remplace l'interface de l'app par le site (aucun
+// bouton retour). Les liens http(s) s'ouvrent dans le navigateur systeme.
+function empecherNavigationExterne(fenetre) {
+  fenetre.webContents.setWindowOpenHandler(({ url }) => {
+    if (url.startsWith('http://') || url.startsWith('https://')) shell.openExternal(url);
+    return { action: 'deny' };
+  });
+  fenetre.webContents.on('will-navigate', (event, url) => {
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      event.preventDefault();
+      shell.openExternal(url);
+    }
+  });
+}
+
 function creerFenetrePrincipale() {
   if (fenetrePrincipale) {
     fenetrePrincipale.show();
@@ -85,6 +101,7 @@ function creerFenetrePrincipale() {
   });
 
   fenetrePrincipale.loadFile(path.join(__dirname, '..', 'renderer', 'index.html'));
+  empecherNavigationExterne(fenetrePrincipale);
 
   fenetrePrincipale.on('close', (event) => {
     if (!app.isQuitting) {
@@ -113,6 +130,7 @@ function creerFenetreOnboarding() {
   });
 
   fenetreOnboarding.loadFile(path.join(__dirname, '..', 'renderer', 'onboarding.html'));
+  empecherNavigationExterne(fenetreOnboarding);
 
   fenetreOnboarding.on('closed', () => {
     fenetreOnboarding = null;
