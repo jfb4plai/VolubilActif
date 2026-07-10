@@ -1,7 +1,7 @@
 {
   "name": "volubilactif",
   "productName": "VolubilActif",
-  "version": "1.3.3",
+  "version": "1.3.4",
   "description": "Dictee vocale 100% locale pour eleves DYS (FWB), adaptation PLAI de Volubil-IA",
   "main": "main/main.js",
   "scripts": {
@@ -29,6 +29,7 @@
   "build": {
     "appId": "be.plai.volubilactif",
     "productName": "VolubilActif",
+    "npmRebuild": false,
     "files": [
       "main/**/*",
       "renderer/**/*",

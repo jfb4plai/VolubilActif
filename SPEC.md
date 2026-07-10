@@ -14,6 +14,14 @@
 > règle "ZÉRO dépendance" de la spec upstream) : hook clavier global
 > nécessaire pour détecter le relâchement de touche, ce que globalShortcut
 > d'Electron ne permet pas. Décision documentée dans le README.
+> v1.3.4 : `"npmRebuild": false` dans la config electron-builder de
+> package.json. Cause racine des échecs CI v1.3.0 à v1.3.3 : electron-builder
+> tentait par défaut de recompiler uiohook-napi via node-gyp pour l'ABI
+> d'Electron, alors que c'est un module N-API (ABI stable) qui embarque déjà
+> des binaires précompilés pour toutes les plateformes ciblées
+> (`node_modules/uiohook-napi/prebuilds/`). Aucune recompilation n'est
+> nécessaire ; les correctifs Python/MSVC des versions intermédiaires ont été
+> retirés du workflow, devenus inutiles.
 
 Application de dictée vocale 100 % locale, inspirée de Wispr Flow, pour Windows et macOS (Apple Silicon).
 Electron, aucune clé API, aucun coût récurrent, aucune donnée qui sort de la machine.

@@ -28,16 +28,6 @@ jobs:
         with:
           node-version: 20
 
-      - name: Installer setuptools (node-gyp a besoin de distutils, retire de Python 3.12+)
-        # Le Python de Homebrew sur macos-latest est "externally managed" (PEP 668) :
-        # --break-system-packages est necessaire, sans risque sur une machine CI jetable.
-        run: python3 -m pip install --upgrade --break-system-packages setuptools
-        if: matrix.os == 'macos-latest'
-
-      - name: Installer setuptools (node-gyp a besoin de distutils, retire de Python 3.12+)
-        run: python -m pip install --upgrade setuptools
-        if: matrix.os == 'windows-latest'
-
       - name: Cache du build whisper.cpp
         id: cache-whisper
         uses: actions/cache@v4
@@ -87,10 +77,6 @@ jobs:
 
       - name: Verifier la syntaxe de tous les fichiers
         run: npm run check
-
-      - name: Configurer l'environnement MSVC (node-gyp ne detecte pas Visual Studio seul)
-        if: matrix.os == 'windows-latest'
-        uses: ilammy/msvc-dev-cmd@v1
 
       - name: Construire l'installateur
         run: npx electron-builder --publish never
