@@ -649,10 +649,20 @@ function enregistrerGestionnairesIpc() {
     const raccourciChange = partiel.hotkey && partiel.hotkey !== ancienRaccourci;
     const modeChange = partiel.holdToTalk !== undefined && Boolean(partiel.holdToTalk) !== ancienMaintien;
 
+    let raccourciEnregistrementEchoue = false;
+
     if (raccourciChange || modeChange) {
-      // Le renderer doit d'abord tester via settings:test-hotkey ; ici on
-      // applique simplement le changement deja valide (raccourci et/ou mode).
-      enregistrerRaccourci(misAJour.hotkey);
+      // Le champ raccourci passe deja par settings:test-hotkey avant d'arriver
+      // ici, mais basculer uniquement la case "maintien" ne le fait pas : on
+      // valide donc explicitement ici, et on revient en arriere si le nouveau
+      // mode/raccourci echoue a s'enregistrer (ex. combinaison non reconnue
+      // par le hook clavier global en mode maintien).
+      const succes = enregistrerRaccourci(misAJour.hotkey);
+      if (!succes) {
+        raccourciEnregistrementEchoue = true;
+        misAJour = settings.set({ hotkey: ancienRaccourci, holdToTalk: ancienMaintien });
+        enregistrerRaccourci(misAJour.hotkey);
+      }
     }
 
     if (partiel.historyRetention !== undefined) {
@@ -661,7 +671,7 @@ function enregistrerGestionnairesIpc() {
     }
 
     rafraichirMenuTray();
-    return misAJour;
+    return { ...misAJour, raccourciEnregistrementEchoue };
   });
 
   ipcMain.handle('settings:test-hotkey', (_event, accelerateur) => {

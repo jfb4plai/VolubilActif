@@ -1,6 +1,13 @@
 // Fenetre cachee dediee a la capture micro : getUserMedia + AudioWorklet.
 // Accumule les blocs PCM pendant l'enregistrement, puis envoie le tout au
 // processus principal au signal d'arret.
+//
+// Le pipeline (flux micro + AudioContext + module AudioWorklet) est cree une
+// seule fois puis reutilise entre les dictees : le recreer a chaque appui
+// (getUserMedia + compilation du worklet) coute ~1 a 1,5 s, un delai qui
+// mange le debut de la phrase en mode "maintenir la touche" ou l'utilisateur
+// parle des l'appui. Seule la connexion du noeud de capture est basculee au
+// demarrage/arret (quasi instantanee).
 
 let contexteAudio = null;
 let noeudSource = null;
@@ -8,12 +15,13 @@ let noeudWorklet = null;
 let flux = null;
 let blocsAudio = [];
 let enregistrementActif = false;
+let initialisation = null;
 
-async function demarrer() {
-  blocsAudio = [];
-  enregistrementActif = true;
+async function assurerInitialisation() {
+  if (contexteAudio) return;
+  if (initialisation) return initialisation;
 
-  try {
+  initialisation = (async () => {
     flux = await navigator.mediaDevices.getUserMedia({
       audio: { echoCancellation: true, noiseSuppression: true },
     });
@@ -30,29 +38,36 @@ async function demarrer() {
       blocsAudio.push(audio);
       window.volubilRecorder.envoyerNiveau(rms);
     };
+  })();
 
-    noeudSource.connect(noeudWorklet);
-  } catch (err) {
-    enregistrementActif = false;
-    window.volubilRecorder.envoyerErreur(
-      "Impossible d'accéder au micro. Vérifie les autorisations de l'application."
-    );
+  try {
+    await initialisation;
+  } finally {
+    initialisation = null;
   }
 }
 
-function nettoyerRessourcesAudio() {
-  if (noeudSource) noeudSource.disconnect();
-  if (noeudWorklet) noeudWorklet.disconnect();
-  if (flux) flux.getTracks().forEach((piste) => piste.stop());
-  if (contexteAudio) contexteAudio.close();
-  noeudSource = null;
-  noeudWorklet = null;
-  flux = null;
-  contexteAudio = null;
+async function demarrer() {
+  blocsAudio = [];
+
+  try {
+    await assurerInitialisation();
+  } catch (err) {
+    contexteAudio = null;
+    window.volubilRecorder.envoyerErreur(
+      "Impossible d'accéder au micro. Vérifie les autorisations de l'application."
+    );
+    return;
+  }
+
+  enregistrementActif = true;
+  noeudSource.connect(noeudWorklet);
 }
 
 async function arreter() {
   enregistrementActif = false;
+
+  if (noeudSource) noeudSource.disconnect(noeudWorklet);
 
   const frequenceEchantillonnage = contexteAudio ? contexteAudio.sampleRate : 48000;
 
@@ -63,8 +78,6 @@ async function arreter() {
     fusionne.set(bloc, position);
     position += bloc.length;
   }
-
-  nettoyerRessourcesAudio();
   blocsAudio = [];
 
   await window.volubilRecorder.envoyerAudio(fusionne.buffer, frequenceEchantillonnage);

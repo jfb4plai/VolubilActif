@@ -367,10 +367,18 @@ document.getElementById('btn-enregistrer-reglages').addEventListener('click', as
   };
   const statut = document.getElementById('statut-reglages');
   try {
-    await window.volubil.saveSettings(partiel);
-    reglagesCourants = { ...reglagesCourants, ...partiel };
-    statut.textContent = 'Réglages enregistrés.';
-    statut.style.color = 'var(--vert)';
+    const misAJour = await window.volubil.saveSettings(partiel);
+    if (misAJour.raccourciEnregistrementEchoue) {
+      reglagesCourants = { ...reglagesCourants, ...misAJour };
+      document.getElementById('reg-raccourci').value = misAJour.hotkey;
+      document.getElementById('reg-maintien').checked = Boolean(misAJour.holdToTalk);
+      statut.textContent = "Échec : le raccourci n'a pas pu être enregistré dans ce mode. Réglage précédent conservé.";
+      statut.style.color = 'var(--rouge)';
+    } else {
+      reglagesCourants = { ...reglagesCourants, ...partiel };
+      statut.textContent = 'Réglages enregistrés.';
+      statut.style.color = 'var(--vert)';
+    }
   } catch (err) {
     statut.textContent = `Erreur d'enregistrement : ${err.message || err}`;
     statut.style.color = 'var(--rouge)';

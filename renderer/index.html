@@ -126,13 +126,16 @@
         <div class="champ">
           <label for="reg-maintien" style="display: flex; align-items: center; gap: 8px;">
             <input type="checkbox" id="reg-maintien" style="width: auto;" />
-            Maintenir la touche enfoncée pour enregistrer
+            Maintenir les touches enfoncées pour enregistrer
           </label>
           <div class="aide-champ">
             Par défaut (décoché) : une pression démarre l'enregistrement, une
             autre l'arrête (mode bascule). Coché : l'enregistrement dure tant
             que le raccourci reste enfoncé, plus intuitif pour certains
-            élèves. Point technique à connaître : ce mode utilise une écoute
+            élèves. Si le raccourci combine plusieurs touches (ex.
+            Ctrl+Alt+Q), relâcher n'importe laquelle d'entre elles — pas
+            seulement la dernière — arrête déjà l'enregistrement. Point
+            technique à connaître : ce mode utilise une écoute
             clavier système capable de voir toutes les frappes (elle n'agit
             que sur le raccourci choisi, mais certains antivirus la signalent
             au premier lancement) ; contrairement au mode bascule, un
