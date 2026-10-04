@@ -3,3 +3,8 @@ dist/
 vendor/
 whisper.cpp/
 *.log
+
+# Dependances et secrets (ajoute 2026-10-04)
+.env
+.env.*
+!.env*.example
