@@ -706,6 +706,7 @@ function enregistrerGestionnairesIpc() {
   });
 
   ipcMain.handle('update:get-status', () => dernierEtatMiseAJour);
+  ipcMain.handle('app:get-version', () => app.getVersion());
 
   ipcMain.handle('whisper:download-model', async (event, taille) => {
     try {

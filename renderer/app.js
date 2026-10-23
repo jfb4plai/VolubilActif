@@ -436,6 +436,14 @@ function afficherStatutMiseAJour(donnees) {
   }
 }
 
+// La version affichee vient de l'application elle-meme (package.json), jamais d'un texte ecrit a la main.
+if (window.volubil.getVersionApp) {
+  window.volubil.getVersionApp().then((v) => {
+    const el = document.getElementById('version-app');
+    if (el) el.textContent = v;
+  });
+}
+
 if (window.volubil.getEtatMiseAJour) {
   window.volubil.getEtatMiseAJour().then(afficherStatutMiseAJour);
   window.volubil.onEtatMiseAJour(afficherStatutMiseAJour);

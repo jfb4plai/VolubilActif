@@ -50,6 +50,7 @@ contextBridge.exposeInMainWorld('volubil', {
 
   // Mise a jour automatique.
   getEtatMiseAJour: () => ipcRenderer.invoke('update:get-status'),
+  getVersionApp: () => ipcRenderer.invoke('app:get-version'),
   onEtatMiseAJour: (callback) => {
     const gestionnaire = (_event, etat) => callback(etat);
     ipcRenderer.on('update:state', gestionnaire);
