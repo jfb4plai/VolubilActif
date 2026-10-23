@@ -152,7 +152,8 @@ Plus besoin de retélécharger l'installateur à chaque nouvelle version.
    à l'ouverture de Windows" (conseillé : la dictée par raccourci ne marche
    que si le programme tourne). Clique sur Installer, puis sur Terminer : le
    programme se lance. Un raccourci est créé sur le bureau et dans le menu
-   Démarrer.
+   Démarrer. La même option existe ensuite dans Réglages ("Lancer VolubilActif
+   à l'ouverture de Windows"), utile après une mise à jour automatique.
 
 À savoir pour les écoles : sur un parc informatique géré (droits
 administrateur verrouillés), cette installation peut être impossible sans

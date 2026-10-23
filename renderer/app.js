@@ -444,6 +444,26 @@ if (window.volubil.getVersionApp) {
   });
 }
 
+// Lancement avec Windows : l'etat vient de Windows (null = indisponible : developpement, Mac).
+if (window.volubil.getDemarrageWindows) {
+  const champ = document.getElementById('champ-demarrage-windows');
+  const case_ = document.getElementById('reg-demarrage-windows');
+  const statut = document.getElementById('statut-demarrage-windows');
+  window.volubil.getDemarrageWindows().then((actif) => {
+    if (actif === null || actif === undefined) return;
+    champ.hidden = false;
+    case_.checked = actif;
+  });
+  case_.addEventListener('change', async () => {
+    const voulu = case_.checked;
+    const obtenu = await window.volubil.setDemarrageWindows(voulu);
+    case_.checked = Boolean(obtenu);
+    statut.textContent = obtenu === voulu
+      ? (obtenu ? 'Au prochain démarrage de Windows, VolubilActif se lancera tout seul.' : 'VolubilActif ne se lancera plus tout seul avec Windows.')
+      : "Windows n'a pas appliqué ce choix. Vérifie Paramètres › Applications › Démarrage.";
+  });
+}
+
 if (window.volubil.getEtatMiseAJour) {
   window.volubil.getEtatMiseAJour().then(afficherStatutMiseAJour);
   window.volubil.onEtatMiseAJour(afficherStatutMiseAJour);

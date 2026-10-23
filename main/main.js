@@ -22,6 +22,7 @@ const { Dictionary } = require('./dictionary');
 const whisper = require('./whisper');
 const { nettoyerSimple, appliquerPonctuationDictee, retirerHallucinations } = require('./cleanup-simple');
 const holdToTalk = require('./hold-to-talk');
+const autostart = require('./autostart');
 const { initialiserMiseAJour } = require('./updater');
 const { nettoyerAmeliore, detecterOllama } = require('./ollama');
 const { insererTexte } = require('./inserter');
@@ -707,6 +708,8 @@ function enregistrerGestionnairesIpc() {
 
   ipcMain.handle('update:get-status', () => dernierEtatMiseAJour);
   ipcMain.handle('app:get-version', () => app.getVersion());
+  ipcMain.handle('autostart:get', () => autostart.lire(app));
+  ipcMain.handle('autostart:set', (_event, actif) => autostart.ecrire(app, actif));
 
   ipcMain.handle('whisper:download-model', async (event, taille) => {
     try {

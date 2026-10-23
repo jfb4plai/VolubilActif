@@ -151,6 +151,22 @@
           </div>
         </div>
 
+        <div class="champ" id="champ-demarrage-windows" hidden>
+          <label for="reg-demarrage-windows" style="display: flex; align-items: center; gap: 8px;">
+            <input type="checkbox" id="reg-demarrage-windows" style="width: auto;" />
+            Lancer VolubilActif à l'ouverture de Windows
+          </label>
+          <div class="aide-champ">
+            Coché : le programme démarre tout seul avec Windows, dans la zone de
+            notification, sans ouvrir de fenêtre. Conseillé : le raccourci de
+            dictée ne marche que si le programme tourne. Ce choix s'applique
+            tout de suite (pas besoin de cliquer sur Enregistrer) et vaut pour
+            cet ordinateur seulement. Windows peut aussi le désactiver depuis
+            Paramètres › Applications › Démarrage.
+          </div>
+          <div id="statut-demarrage-windows" class="aide-champ" role="status" aria-live="polite"></div>
+        </div>
+
         <div class="champ">
           <label for="reg-modele">Taille du modèle Whisper</label>
           <select id="reg-modele">
