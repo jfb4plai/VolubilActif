@@ -5,6 +5,11 @@ const { nettoyerSimple } = require('./cleanup-simple');
 
 const TIMEOUT_DETECTION_MS = 2000;
 const TIMEOUT_GENERATION_MS = 20000;
+const TIMEOUT_PRECHAUFFAGE_MS = 60000;
+// Duree pendant laquelle Ollama garde le modele en memoire apres un appel (5 min par
+// defaut) : sans cela, la premiere dictee apres une pause attend le chargement du modele
+// (mesure : 14 s avec qwen2.5:7b contre 5 s modele en memoire).
+const GARDER_EN_MEMOIRE = '30m';
 
 function construirePrompt(texte, formesCorrectes) {
   const glossaire = formesCorrectes.length
@@ -69,6 +74,34 @@ async function detecterOllama(settings) {
   }
 }
 
+// Charge le modele en memoire pendant que l'utilisateur parle, puis fait generer un seul
+// mot pour amorcer aussi le premier calcul (mesure : une requete vide charge le modele
+// mais le nettoyage qui suit reste lent de 4 s de plus). Sans effet (et sans erreur) si
+// Ollama est absent.
+async function prechauffer(settings) {
+  if (settings.mode !== 'ameliore' && settings.mode !== 'improved') return;
+  try {
+    await requeteAvecTimeout(
+      `${settings.ollamaUrl}/api/generate`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: settings.ollamaModel,
+          // Meme gabarit que le vrai nettoyage : amorce aussi le calcul d'un long prompt.
+          prompt: construirePrompt('Bonjour tout le monde.', []),
+          stream: false,
+          keep_alive: GARDER_EN_MEMOIRE,
+          options: { temperature: 0, num_predict: 4 },
+        }),
+      },
+      TIMEOUT_PRECHAUFFAGE_MS
+    );
+  } catch (err) {
+    // Ollama absent ou modele manquant : le nettoyage retombera sur le mode simple.
+  }
+}
+
 function reponseAberrante(reponse, texteEntree) {
   if (!reponse || !reponse.trim()) return true;
   if (reponse.length > texteEntree.length * 3) return true;
@@ -107,6 +140,7 @@ async function nettoyerAmeliore(texteBrut, settings, formesCorrectes) {
           model: settings.ollamaModel,
           prompt,
           stream: false,
+          keep_alive: GARDER_EN_MEMOIRE,
           options: { temperature: 0 },
         }),
       },
@@ -128,4 +162,4 @@ async function nettoyerAmeliore(texteBrut, settings, formesCorrectes) {
   }
 }
 
-module.exports = { detecterOllama, nettoyerAmeliore, construirePrompt, reponseAberrante };
+module.exports = { detecterOllama, nettoyerAmeliore, prechauffer, construirePrompt, reponseAberrante };

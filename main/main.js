@@ -24,7 +24,7 @@ const { nettoyerSimple, appliquerPonctuationDictee, retirerHallucinations } = re
 const holdToTalk = require('./hold-to-talk');
 const autostart = require('./autostart');
 const { initialiserMiseAJour } = require('./updater');
-const { nettoyerAmeliore, detecterOllama } = require('./ollama');
+const { nettoyerAmeliore, detecterOllama, prechauffer } = require('./ollama');
 const { insererTexte } = require('./inserter');
 const recorderBridge = require('./recorder-bridge');
 
@@ -507,6 +507,10 @@ async function demarrerEnregistrement() {
 
   debutEnregistrement = Date.now();
   afficherHud('enregistrement', { depart: debutEnregistrement });
+
+  // Pendant que l'utilisateur parle, Ollama charge son modele : le nettoyage qui suivra
+  // n'attend plus ce chargement. Jamais en mode examen (aucun passage par l'IA).
+  if (!settings.get('examMode')) prechauffer(settings.getAll());
 
   if (fenetreRecorder) {
     fenetreRecorder.webContents.send('recorder:start');
