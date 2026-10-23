@@ -55,8 +55,14 @@
       ]
     },
     "nsis": {
-      "oneClick": true,
-      "artifactName": "VolubilActif-Windows-${version}.${ext}"
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "runAfterFinish": true,
+      "language": "1036",
+      "artifactName": "VolubilActif-Windows-installateur.${ext}"
     },
     "mac": {
       "target": [

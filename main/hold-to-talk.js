@@ -33,14 +33,33 @@ const CODES_MODIFICATEURS = {
 // Decompose un accelerateur du format "Ctrl+Alt+Q" en code numerique de la
 // touche principale + codes des modificateurs requis. Retourne null si une
 // des touches n'est pas reconnue.
-function analyserAccelerateur(accelerateur) {
+//
+// carteClavier (optionnelle) : { 'Q': 'KeyA', ... } = pour chaque lettre ou
+// chiffre, la touche physique qui le produit sur la disposition en cours
+// (fournie par le renderer, voir recorder.js). Le crochet systeme voit des
+// codes physiques (positions QWERTY) : sans cette carte, "Q" serait cherche
+// sur la touche marquee A d'un clavier AZERTY.
+function codeTouchePrincipale(nom, carteClavier) {
+  const codePhysique = carteClavier && carteClavier[nom];
+  if (codePhysique) {
+    // Le code physique ("KeyA", "Digit1") designe une position QWERTY :
+    // on retrouve son code numerique par le nom de la lettre/chiffre.
+    const nomPosition = codePhysique.replace(/^(Key|Digit)/, '');
+    if (CODES_TOUCHE_PRINCIPALE[nomPosition] !== undefined) {
+      return CODES_TOUCHE_PRINCIPALE[nomPosition];
+    }
+  }
+  return CODES_TOUCHE_PRINCIPALE[nom];
+}
+
+function analyserAccelerateur(accelerateur, carteClavier) {
   const parties = (accelerateur || '').split('+').map((p) => p.trim()).filter(Boolean);
   if (parties.length === 0) return null;
 
   const nomToucheP = parties[parties.length - 1];
   const nomsModificateurs = parties.slice(0, -1);
 
-  const codeTouche = CODES_TOUCHE_PRINCIPALE[nomToucheP];
+  const codeTouche = codeTouchePrincipale(nomToucheP, carteClavier);
   if (codeTouche === undefined) return null;
 
   const codesModificateurs = [];
@@ -71,8 +90,8 @@ let gestionnaireKeyup = null;
 // la combinaison complete est pressee, onArreter() des que l'une des
 // touches impliquees (principale ou modificateur) est relachee. Retourne
 // false si l'accelerateur n'est pas reconnu par ce module.
-function demarrerEcoute(accelerateur, { onDemarrer, onArreter }) {
-  const structure = analyserAccelerateur(accelerateur);
+function demarrerEcoute(accelerateur, { onDemarrer, onArreter }, carteClavier) {
+  const structure = analyserAccelerateur(accelerateur, carteClavier);
   if (!structure) return false;
 
   arreterEcoute();

@@ -18,6 +18,7 @@ Règles :
 - Applique la ponctuation dictée à voix haute : "virgule" devient ",", "point" devient ".", "point d'interrogation" devient "?", "point d'exclamation" devient "!", "deux points" devient ":", "point-virgule" devient ";", "à la ligne" ou "nouvelle ligne" devient un saut de ligne, "nouveau paragraphe" devient un double saut de ligne, "ouvrez les guillemets" et "fermez les guillemets" deviennent « et ».
 - Gère les retours en arrière (marqueurs : "en fait non", "non plutôt", "je veux dire", "pardon", "correction", "non attends") : ne garde que la version finale voulue.
 - Supprime les hésitations et faux départs restants.
+- Corrige uniquement ces confusions d'homophones quand la phrase n'admet qu'un seul choix : ou/où, a/à, son/sont, et/est, on/ont. Ne change aucun autre mot. Ne remplace jamais un mot par un mot de sens différent. Garde tels quels les noms propres, les sigles, les mots rares, les déterminants et possessifs (ses, leurs, mes, ces...) et les nombres écrits en lettres (ne les transforme ni en chiffres ni en ordinaux).
 - Ne reformule pas, ne résume pas, ne réponds pas au contenu, n'ajoute aucune information.
 ${glossaire}
 
@@ -32,6 +33,10 @@ Sortie : Bonjour, je vous recontacte demain.
 Exemple 3 :
 Entrée : le rapport est prêt euh non attends il manque encore la synthèse
 Sortie : Il manque encore la synthèse.
+
+Exemple 4 :
+Entrée : les élèves son partis a la récréation et je sais pas ou ils sont
+Sortie : Les élèves sont partis à la récréation et je sais pas où ils sont.
 
 Texte à corriger :
 ${texte}`;

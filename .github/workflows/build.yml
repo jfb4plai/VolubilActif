@@ -1,7 +1,10 @@
 # Fabrique automatiquement les installateurs Windows (.exe) et Mac (.dmg)
-# a chaque fois qu'une etiquette de version (v1.0.0, v1.1.0...) est poussee,
-# puis les attache a la page "Releases" du depot.
+# a chaque fois qu'une etiquette de version (v1.0.0, v1.1.0...) est poussee.
 # Compile aussi whisper.cpp pour chaque plateforme avant d'empaqueter l'app.
+# Chaine : construction (+ test d'installation Windows et analyse Defender), puis
+# analyse ClamAV, puis rapport de securite, puis publication sur la page "Releases"
+# seulement si Defender et ClamAV ne signalent aucune menace.
+# Lancement manuel (workflow_dispatch) : construction et analyses, sans publication.
 name: Construire les installateurs
 
 on:
@@ -90,8 +93,149 @@ jobs:
             sha256sum "$f" > "$f.sha256.txt"
           done
 
+      # Installation silencieuse dans un dossier de test, puis mise a jour par-dessus, puis desinstallation.
+      # Le programme n'est pas lance ici (pas d'ecran sur le serveur) : on verifie les fichiers et le registre.
+      - name: Tester l'installateur Windows (installer, mettre à jour, désinstaller)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          $setup = (Get-ChildItem dist -Filter 'VolubilActif-Windows-*.exe' | Select-Object -First 1).FullName
+          if (-not $setup) { throw "Installateur introuvable dans dist" }
+          $dir = Join-Path $env:RUNNER_TEMP "install-test"
+          $p = Start-Process $setup -ArgumentList '/S', '/currentuser', "/D=$dir" -Wait -PassThru
+          if ($p.ExitCode -ne 0) { throw "Installation : code $($p.ExitCode)" }
+          $exe = Join-Path $dir "VolubilActif.exe"
+          if (-not (Test-Path $exe)) { throw "Programme absent après installation" }
+          if (-not (Test-Path (Join-Path $dir "resources\bin\whisper-cli.exe"))) { throw "whisper-cli.exe absent après installation" }
+          $p = Start-Process $setup -ArgumentList '/S', '/currentuser', '--updated', "/D=$dir" -Wait -PassThru
+          if ($p.ExitCode -ne 0) { throw "Mise à jour par-dessus : code $($p.ExitCode)" }
+          $entrees = @(Get-ChildItem 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall' | ForEach-Object { Get-ItemProperty $_.PSPath } | Where-Object { $_.DisplayName -like 'VolubilActif*' })
+          if ($entrees.Count -ne 1) { throw "Entrée de désinstallation attendue : 1, trouvée : $($entrees.Count)" }
+          $unins = Get-ChildItem $dir -Filter "Uninstall*.exe" | Select-Object -First 1
+          if (-not $unins) { throw "Désinstalleur absent" }
+          $p = Start-Process $unins.FullName -ArgumentList '/S', '/currentuser' -Wait -PassThru
+          for ($i = 0; $i -lt 30 -and (Test-Path $exe); $i++) { Start-Sleep -Seconds 1 }
+          if (Test-Path $exe) { throw "Le programme est encore là après désinstallation" }
+          "Installation, mise à jour par-dessus et désinstallation : OK"
+
+      # Analyse par le vrai Microsoft Defender du serveur Windows. Le texte de sortie decide du statut
+      # (« found no threats » / « found N threats ») plutot que le code de sortie, ambigu selon les versions.
+      - name: Analyse Microsoft Defender (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          $status = "NON_CONCLUANT"; $detail = ""
+          try {
+            $mp = Join-Path $env:ProgramFiles "Windows Defender\MpCmdRun.exe"
+            if (-not (Test-Path $mp)) { throw "MpCmdRun.exe introuvable sur ce serveur" }
+            try { & $mp -SignatureUpdate 2>&1 | Out-Null } catch { }
+            try {
+              $st = Get-MpComputerStatus
+              $detail = "Moteur Defender $($st.AMProductVersion), signatures $($st.AntivirusSignatureVersion) (mises à jour le $($st.AntivirusSignatureLastUpdated.ToUniversalTime().ToString('yyyy-MM-dd HH:mm')) UTC)`n"
+            } catch { $detail = "Version des signatures indisponible`n" }
+            $inst = (Get-ChildItem dist -Filter 'VolubilActif-Windows-*.exe' | Select-Object -First 1).FullName
+            $out = (& $mp -Scan -ScanType 3 -File $inst -DisableRemediation 2>&1 | Out-String).Trim()
+            $detail += "Installateur analysé : $(Split-Path $inst -Leaf)`n$out"
+            $dossier = (Resolve-Path "dist/win-unpacked").Path
+            $out2 = (& $mp -Scan -ScanType 3 -File $dossier -DisableRemediation 2>&1 | Out-String).Trim()
+            $detail += "`n`nProgramme décompressé analysé : win-unpacked`n$out2"
+            if ($out -match "found no threats" -and $out2 -match "found no threats") { $status = "PROPRE" }
+            elseif (($out + $out2) -match "found \d+ threat") { $status = "MENACE" }
+          } catch { $detail = "Analyse impossible : $($_.Exception.Message)" }
+          "STATUT: $status`n$detail" | Out-File -Encoding utf8 dist/scan-defender.txt
+          Get-Content dist/scan-defender.txt
+
+      - name: Garder les fichiers construits pour les étapes suivantes
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ matrix.os }}
+          path: |
+            dist/*.exe
+            dist/*.dmg
+            dist/*.zip
+            dist/latest*.yml
+            dist/*.sha256.txt
+            dist/scan-defender.txt
+          if-no-files-found: error
+
+  scan-linux:
+    runs-on: ubuntu-latest
+    needs: build
+    env:
+      VT_API_KEY: ${{ secrets.VT_API_KEY }}   # facultatif : sans cle, VirusTotal est simplement ignore
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist-windows-latest
+          path: pkg
+      - name: Analyse ClamAV
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq clamav > /dev/null
+          sudo systemctl stop clamav-freshclam 2> /dev/null || true
+          sudo freshclam --quiet || echo "Mise à jour des signatures impossible : signatures installées utilisées"
+          ver="$(clamscan --version)"
+          set +e
+          out="$(clamscan -r --infected pkg 2>&1)"
+          code=$?
+          set -e
+          case $code in 0) st=PROPRE;; 1) st=MENACE;; *) st=NON_CONCLUANT;; esac
+          { echo "STATUT: $st"; echo "$ver"; echo "$out"; } > scan-clamav.txt
+          cat scan-clamav.txt
+      - name: Analyse VirusTotal (si une clé est configurée)
+        if: ${{ env.VT_API_KEY != '' }}
+        continue-on-error: true
+        run: python3 tools/virustotal.py "$(ls pkg/VolubilActif-Windows-*.exe | head -1)" scan-virustotal.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: analyses-linux
+          path: |
+            scan-clamav.txt
+            scan-virustotal.txt
+          if-no-files-found: ignore
+
+  rapport:
+    runs-on: ubuntu-latest
+    needs: [build, scan-linux]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: art
+      - name: Rapport d'analyse de sécurité
+        run: |
+          cat art/dist-windows-latest/*.exe.sha256.txt > art/all.sha256
+          vt=""; [ -f art/analyses-linux/scan-virustotal.txt ] && vt="--vt art/analyses-linux/scan-virustotal.txt"
+          # Le rapport sort en erreur si Defender ou ClamAV signalent une menace : la publication est alors bloquee.
+          python3 tools/scan_report.py --version "${{ github.ref_name }}" \
+            --sha art/all.sha256 \
+            --defender art/dist-windows-latest/scan-defender.txt \
+            --clamav art/analyses-linux/scan-clamav.txt $vt --out SECURITY-REPORT.md
+          cat SECURITY-REPORT.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: rapport-securite
+          path: SECURITY-REPORT.md
+
+  publier:
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    needs: rapport
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: art
+      - name: Rassembler les fichiers à publier
+        run: |
+          mkdir out
+          cp art/dist-windows-latest/*.exe art/dist-windows-latest/latest*.yml art/dist-windows-latest/*.sha256.txt out/
+          cp art/dist-macos-latest/*.dmg art/dist-macos-latest/*.zip art/dist-macos-latest/latest*.yml art/dist-macos-latest/*.sha256.txt out/
+          cp art/rapport-securite/SECURITY-REPORT.md out/
+          ls -la out
       - name: Publier sur la page Releases
-        if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
           name: VolubilActif ${{ github.ref_name }}
@@ -102,12 +246,9 @@ jobs:
 
             Mode d'emploi complet dans le [README](https://github.com/jfb4plai/VolubilActif#readme).
 
-            Chaque installateur est accompagné d'un fichier `.sha256.txt` : il permet de vérifier que le fichier téléchargé est bien celui construit ici, sans modification en chemin. À partir de cette version, VolubilActif se met à jour tout seul : plus besoin de retélécharger manuellement les prochaines versions.
-          files: |
-            dist/*.exe
-            dist/*.dmg
-            dist/*.zip
-            dist/latest*.yml
-            dist/*.sha256.txt
+            Chaque installateur est accompagné d'un fichier `.sha256.txt` : il permet de vérifier que le fichier téléchargé est bien celui construit ici, sans modification en chemin. VolubilActif se met à jour tout seul : plus besoin de retélécharger manuellement les prochaines versions.
+
+            Le fichier `SECURITY-REPORT.md` donne le résultat des analyses antivirus faites sur cette version (Microsoft Defender, ClamAV). Il ne supprime pas l'avertissement « Windows a protégé votre ordinateur », qui dépend de la signature numérique du programme.
+          files: out/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

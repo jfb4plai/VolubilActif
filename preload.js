@@ -94,4 +94,5 @@ contextBridge.exposeInMainWorld('volubilRecorder', {
   envoyerAudio: (arrayBuffer, sampleRate) => ipcRenderer.invoke('recorder:audio-data', arrayBuffer, sampleRate),
   envoyerNiveau: (rms) => ipcRenderer.send('recorder:mic-level', rms),
   envoyerErreur: (message) => ipcRenderer.invoke('recorder:error', message),
+  envoyerCarteClavier: (carte) => ipcRenderer.send('recorder:keyboard-layout', carte),
 });

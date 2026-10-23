@@ -411,6 +411,10 @@ function creerTray() {
 // Raccourci clavier global
 // ---------------------------------------------------------------------------
 
+// Disposition du clavier en cours, envoyee par la fenetre recorder (voir
+// recorder.js). Utilisee par le mode maintien pour trouver la bonne touche.
+let carteClavier = null;
+
 function modeRaccourciCourant() {
   return settings.get('holdToTalk') ? 'maintien' : 'bascule';
 }
@@ -437,7 +441,7 @@ function enregistrerRaccourci(accelerateur) {
       onArreter: () => {
         if (etat === 'recording') arreterEnregistrement();
       },
-    });
+    }, carteClavier);
   }
 
   return globalShortcut.register(accelerateur, () => surAppuiRaccourci());
@@ -817,6 +821,17 @@ function enregistrerGestionnairesIpc() {
     return true;
   });
 
+  ipcMain.on('recorder:keyboard-layout', (_event, carte) => {
+    if (!carte || typeof carte !== 'object') return;
+    if (JSON.stringify(carte) === JSON.stringify(carteClavier)) return;
+    carteClavier = carte;
+    // Le raccourci est peut-etre deja enregistre avec l'ancienne carte :
+    // on le recree, sauf pendant une dictee en cours.
+    if (modeRaccourciCourant() === 'maintien' && etat === 'idle') {
+      enregistrerRaccourci(settings.get('hotkey'));
+    }
+  });
+
   ipcMain.on('recorder:mic-level', (_event, rms) => {
     if (fenetreHud) fenetreHud.webContents.send('hud:mic-level', rms);
   });
@@ -858,8 +873,12 @@ app.whenReady().then(async () => {
     });
   }
 
+  // Lancement avec Windows (--reduit) : l'app reste dans le tray, sans
+  // ouvrir la fenetre, tant que la premiere configuration est faite.
+  const demarrageReduit = process.argv.includes('--reduit');
+
   if (settings.get('onboardingDone')) {
-    creerFenetrePrincipale();
+    if (!demarrageReduit) creerFenetrePrincipale();
   } else {
     creerFenetreOnboarding();
   }

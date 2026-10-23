@@ -83,6 +83,36 @@ async function arreter() {
   await window.volubilRecorder.envoyerAudio(fusionne.buffer, frequenceEchantillonnage);
 }
 
+// Envoie au processus principal la disposition du clavier en cours : pour
+// chaque lettre/chiffre, la touche physique qui le produit (ex. sur AZERTY,
+// 'Q' -> 'KeyA'). Le mode "maintien" en a besoin, son crochet clavier ne
+// voit que des positions physiques.
+async function envoyerCarteClavier() {
+  if (!navigator.keyboard || !navigator.keyboard.getLayoutMap) return;
+  try {
+    const disposition = await navigator.keyboard.getLayoutMap();
+    const carte = {};
+    for (let c = 65; c <= 90; c++) {
+      const code = 'Key' + String.fromCharCode(c);
+      const caractere = (disposition.get(code) || '').toUpperCase();
+      if (/^[A-Z]$/.test(caractere)) carte[caractere] = code;
+    }
+    for (let n = 0; n <= 9; n++) {
+      const code = 'Digit' + n;
+      const caractere = disposition.get(code) || '';
+      if (/^[0-9]$/.test(caractere)) carte[caractere] = code;
+    }
+    window.volubilRecorder.envoyerCarteClavier(carte);
+  } catch (err) {
+    // Sans carte, le mode maintien suppose une disposition QWERTY.
+  }
+}
+
+envoyerCarteClavier();
+if (navigator.keyboard && navigator.keyboard.addEventListener) {
+  navigator.keyboard.addEventListener('layoutchange', envoyerCarteClavier);
+}
+
 window.volubilRecorder.onDemarrer(() => {
   demarrer();
 });

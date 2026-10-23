@@ -148,7 +148,11 @@ Plus besoin de retélécharger l'installateur à chaque nouvelle version.
 3. Double-clique sur le fichier. Windows affiche un écran bleu "Windows a
    protégé votre ordinateur" : clique sur "Informations complémentaires"
    puis "Exécuter quand même".
-4. L'application s'installe et s'ouvre toute seule.
+4. Un assistant en français s'ouvre. Il propose une case "Lancer VolubilActif
+   à l'ouverture de Windows" (conseillé : la dictée par raccourci ne marche
+   que si le programme tourne). Clique sur Installer, puis sur Terminer : le
+   programme se lance. Un raccourci est créé sur le bureau et dans le menu
+   Démarrer.
 
 À savoir pour les écoles : sur un parc informatique géré (droits
 administrateur verrouillés), cette installation peut être impossible sans
