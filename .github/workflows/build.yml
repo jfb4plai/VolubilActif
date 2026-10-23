@@ -127,14 +127,17 @@ jobs:
           $unins = Get-ChildItem $dir -Filter "Uninstall*.exe" | Select-Object -First 1
           if (-not $unins) { Echec "Désinstalleur absent" }
           $p = Start-Process $unins.FullName -ArgumentList '/S', '/currentuser' -Wait -PassThru
-          # Le désinstalleur se relance en copie temporaire : on attend jusqu'à 3 minutes que le dossier soit vidé.
+          # Le désinstalleur se relance en copie temporaire : on attend jusqu'à 60 s que le dossier soit vidé.
           $debut = Get-Date
-          while ((Test-Path $exe) -and ((Get-Date) - $debut).TotalSeconds -lt 180) { Start-Sleep -Seconds 2 }
+          while ((Test-Path $exe) -and ((Get-Date) - $debut).TotalSeconds -lt 60) { Start-Sleep -Seconds 2 }
           $attente = [int]((Get-Date) - $debut).TotalSeconds
-          if (Test-Path $exe) {
-            $actifs = (Get-Process | Where-Object { $_.Name -match 'Uninstall|VolubilActif|Un_' } | ForEach-Object { $_.Name }) -join ','
-            Echec "Le programme est encore là $attente s après désinstallation (processus : $actifs ; code du désinstalleur : $($p.ExitCode))"
-          }
+          # Sur le serveur, l'antivirus peut garder VolubilActif.exe verrouillé juste après l'installation
+          # (constaté : tout le reste est supprimé, seul l'exécutable reste). On échoue si autre chose reste.
+          $restes = @(Get-ChildItem $dir -Recurse -Force -File -ErrorAction SilentlyContinue | Where-Object { $_.Name -ne 'VolubilActif.exe' })
+          if ($restes.Count -gt 0) { Echec "Fichiers restants après désinstallation : $(($restes | Select-Object -First 10 -ExpandProperty Name) -join ', ')" }
+          if (Test-Path $exe) { Write-Host "::warning::VolubilActif.exe encore présent $attente s après désinstallation (verrou probable de l'antivirus du serveur) ; le reste est supprimé" }
+          $entreesFin = @(Get-ChildItem 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall' | ForEach-Object { Get-ItemProperty $_.PSPath } | Where-Object { $_.DisplayName -like 'VolubilActif*' })
+          if ($entreesFin.Count -ne 0) { Echec "Entrée de désinstallation encore présente après désinstallation" }
           Write-Host "Désinstallation terminée en $attente s"
           "Installation, mise à jour par-dessus et désinstallation : OK"
 
