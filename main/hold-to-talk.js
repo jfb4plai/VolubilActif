@@ -120,9 +120,29 @@ function demarrerEcoute(accelerateur, { onDemarrer, onArreter }, carteClavier) {
 
   uIOhook.on('keydown', gestionnaireKeydown);
   uIOhook.on('keyup', gestionnaireKeyup);
-  uIOhook.start();
+  try {
+    uIOhook.start();
+  } catch (err) {
+    // Windows peut refuser d'installer le crochet (ex. "Failed to register low
+    // level windows hook") : on rend la main avec false plutot que de laisser
+    // une exception non rattrapee ouvrir une boite d'erreur dans l'app.
+    uIOhook.removeListener('keydown', gestionnaireKeydown);
+    uIOhook.removeListener('keyup', gestionnaireKeyup);
+    gestionnaireKeydown = null;
+    gestionnaireKeyup = null;
+    return false;
+  }
   ecouteActive = true;
   return true;
+}
+
+// Vrai si changer de carte de clavier change la touche physique ecoutee pour
+// cet accelerateur. Sans lettre (Ctrl+Maj+Espace...), la carte n'a aucun effet :
+// inutile alors de recreer l'ecoute (arret puis redemarrage du crochet).
+function carteChangeLaTouche(accelerateur, ancienneCarte, nouvelleCarte) {
+  const avant = analyserAccelerateur(accelerateur, ancienneCarte);
+  const apres = analyserAccelerateur(accelerateur, nouvelleCarte);
+  return !avant || !apres || avant.codeTouche !== apres.codeTouche;
 }
 
 function arreterEcoute() {
@@ -139,4 +159,4 @@ function arreterEcoute() {
   ecouteActive = false;
 }
 
-module.exports = { demarrerEcoute, arreterEcoute, analyserAccelerateur };
+module.exports = { demarrerEcoute, arreterEcoute, analyserAccelerateur, carteChangeLaTouche };

@@ -824,10 +824,16 @@ function enregistrerGestionnairesIpc() {
   ipcMain.on('recorder:keyboard-layout', (_event, carte) => {
     if (!carte || typeof carte !== 'object') return;
     if (JSON.stringify(carte) === JSON.stringify(carteClavier)) return;
+    const ancienneCarte = carteClavier;
     carteClavier = carte;
-    // Le raccourci est peut-etre deja enregistre avec l'ancienne carte :
-    // on le recree, sauf pendant une dictee en cours.
-    if (modeRaccourciCourant() === 'maintien' && etat === 'idle') {
+    // Le raccourci est peut-etre deja enregistre avec l'ancienne carte : on le
+    // recree seulement si la touche ecoutee change (jamais pour un raccourci
+    // sans lettre) et pas pendant une dictee en cours.
+    if (
+      modeRaccourciCourant() === 'maintien' &&
+      etat === 'idle' &&
+      holdToTalk.carteChangeLaTouche(settings.get('hotkey'), ancienneCarte, carte)
+    ) {
       enregistrerRaccourci(settings.get('hotkey'));
     }
   });
