@@ -107,8 +107,16 @@ jobs:
           $setup = (Get-ChildItem dist -Filter 'VolubilActif-Windows-*.exe' | Select-Object -First 1).FullName
           if (-not $setup) { Echec "Installateur introuvable dans dist" }
           $dir = Join-Path $env:RUNNER_TEMP "install-test"
-          $p = Start-Process $setup -ArgumentList '/S', '/currentuser', "/D=$dir" -Wait -PassThru
-          if ($p.ExitCode -ne 0) { Echec "Installation : code $($p.ExitCode)" }
+          # Un plantage ponctuel de l'installateur sur le serveur (code -1073741819) a été vu une fois sur quatre
+          # exécutions : jusqu'à 3 tentatives, chaque échec laisse un avertissement lisible.
+          for ($essai = 1; $essai -le 3; $essai++) {
+            $p = Start-Process $setup -ArgumentList '/S', '/currentuser', "/D=$dir" -Wait -PassThru
+            if ($p.ExitCode -eq 0) { break }
+            Write-Host "::warning::Installation, tentative $essai : code $($p.ExitCode)"
+            if ($essai -eq 3) { Echec "Installation : code $($p.ExitCode) après 3 tentatives" }
+            if (Test-Path $dir) { Remove-Item $dir -Recurse -Force -ErrorAction SilentlyContinue }
+            Start-Sleep -Seconds 10
+          }
           $exe = Join-Path $dir "VolubilActif.exe"
           if (-not (Test-Path $exe)) { Echec "Programme absent après installation" }
           if (-not (Test-Path (Join-Path $dir "resources\bin\whisper-cli.exe"))) { Echec "whisper-cli.exe absent après installation" }
