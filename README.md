@@ -99,14 +99,19 @@ défaut, n'utilise pas cette bibliothèque.
 
 | | Mode simple | Mode amélioré |
 |---|---|---|
-| Ce qu'il fait | Supprime les "euh", les répétitions, corrige les espaces et la majuscule de départ | Ajoute un second passage par un petit modèle de langage local (Ollama) : ponctuation automatique, ponctuation dictée à voix haute, gestion des "en fait non..." |
+| Ce qu'il fait | Supprime les "euh", les répétitions, corrige les espaces et la majuscule de départ. Convertit aussi la ponctuation dictée à voix haute ("virgule", "à la ligne", "nouveau paragraphe"...) par simples règles | Ajoute un second passage par un petit modèle de langage local (Ollama) : ponctuation automatique, gestion des "en fait non...", corrections d'homophones. Les "à la ligne" et "nouveau paragraphe" sont traités par les mêmes règles avant le modèle, qui ne peut donc pas les effacer |
 | Machine conseillée | N'importe quel PC ou Mac récent | 8 Go de RAM ou plus, avec Ollama installé |
 | Dépendance externe | Aucune | Ollama, qui tourne lui-même en local |
 | En classe | Recommandé (les machines d'école permettent rarement d'installer Ollama) | Plutôt pour la machine personnelle |
 
 Si Ollama est absent ou éteint, VolubilActif revient automatiquement au mode
 simple, sans rien casser. Et en **mode examen**, le mode amélioré est ignoré
-d'office : transcription brute, nettoyage de base uniquement.
+d'office : transcription brute, nettoyage de base et ponctuation dictée par
+règles uniquement. Les sauts de ligne dictés ("à la ligne", "nouveau
+paragraphe") fonctionnent donc de la même façon qu'avec Ollama. Ce que le mode
+examen ne fait pas : pas de ponctuation ajoutée automatiquement (seulement
+celle que Whisper écrit lui-même ou que l'élève dicte), pas de retour en
+arrière ("en fait non"), pas de correction d'homophones.
 
 ## Mise à jour automatique
 

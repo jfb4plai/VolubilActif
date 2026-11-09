@@ -246,7 +246,12 @@ class Dictionary {
     for (let tailleGramme = 3; tailleGramme >= 1; tailleGramme--) {
       for (let depart = 0; depart <= motsIndices.length - tailleGramme; depart++) {
         const indicesGramme = motsIndices.slice(depart, depart + tailleGramme);
-        if (indicesGramme.some((i) => tokens[i] === null)) continue; // deja consomme
+        // Mot deja consomme par une correspondance precedente (son indice a ete
+        // remplace par null plus bas) : on passe.
+        if (indicesGramme.some((i) => i === null || tokens[i] === null)) continue;
+        // Un terme ne s'etend jamais d'une ligne a l'autre ("a la ligne",
+        // "nouveau paragraphe") : le saut de ligne dicte doit rester en place.
+        if (indicesGramme.slice(1).some((i) => /\n/.test(tokens[i - 1]))) continue;
 
         const coeurs = indicesGramme.map((i) => extraireMot(tokens[i]).coeur);
         if (coeurs.some((c) => c.length === 0)) continue;
@@ -277,7 +282,10 @@ class Dictionary {
           // Supprime aussi l'espace qui precedait ce mot consomme.
           if (indicesGramme[k] - 1 >= 0) tokens[indicesGramme[k] - 1] = '';
         }
-        for (let k = 1; k < indicesGramme.length; k++) {
+        // Tous les mots du terme (le premier compris) sont marques consommes : le
+        // premier contient maintenant plusieurs mots collés, qu'un passage suivant
+        // ne doit ni re-analyser ni amputer de sa ponctuation finale.
+        for (let k = 0; k < indicesGramme.length; k++) {
           motsIndices[motsIndices.indexOf(indicesGramme[k])] = null;
         }
       }

@@ -65,12 +65,14 @@ function corrigerEspaces(texte) {
   resultat = resultat.replace(/[ \t]+([.,])/g, '$1');
   resultat = resultat.replace(/([.,])(?=[^\s.,\d])/g, '$1 ');
   // Espace simple acceptee avant ?!;: (convention francaise simplifiee).
-  resultat = resultat.replace(/\s*([?!;:])/g, ' $1');
+  resultat = resultat.replace(/[ \t]*([?!;:])/g, ' $1');
   resultat = resultat.replace(/([?!;:])(?=\S)/g, '$1 ');
   // Compresser les espaces multiples.
   resultat = resultat.replace(/[ \t]+/g, ' ');
   resultat = resultat.replace(/ +\n/g, '\n');
-  resultat = resultat.trim();
+  // Les sauts de ligne en tete ou en fin de texte sont voulus ("a la ligne"
+  // dit au debut ou a la fin d'une dictee) : on ne retire que les espaces.
+  resultat = resultat.replace(/^[ \t]+|[ \t]+$/g, '');
   return resultat;
 }
 
@@ -105,7 +107,7 @@ function supprimerArtefacts(texte) {
 const PONCTUATION_DICTEE = [
   // "3 virgule 5" est un nombre decimal, pas une enumeration : pas d'espace.
   [/(\d)\s+virgule\s+(?=\d)/gi, '$1,'],
-  [/\bpoints?\s+de\s+suspension\b/gi, '...'],
+  [/\bpoints?\s+de\s+suspension\b[.,;]?/gi, '...'],
   [/\bpoint[\s-]+virgule\b/gi, ';'],
   [/\bpoint\s+d[’']interrogation\b/gi, '?'],
   [/\bpoint\s+d[’']exclamation\b/gi, '!'],
@@ -157,8 +159,11 @@ function appliquerPonctuationDictee(texte) {
     resultat = resultat.replace(motif, remplacement);
   }
   resultat = convertirPointDicte(resultat);
-  // "trouver. Point" : Whisper a deja mis un point, on n'en garde qu'un.
-  resultat = resultat.replace(/([.!?])[ \t]+\.(?=\s|$)/g, '$1');
+  // Plusieurs points separes par des espaces ("trouver. Point.") : un seul.
+  // "..." (points de suspension, sans espace) reste intact.
+  resultat = resultat.replace(/\.(?:[ \t]*\.)+/g, (m) => (m === '...' ? m : '.'));
+  // Virgule ou point-virgule laisse par Whisper juste avant un saut de ligne : retire.
+  resultat = resultat.replace(/[,;][ \t]*(?=\n)/g, '');
   // Pas d'espaces residuels autour des sauts de ligne inseres.
   resultat = resultat.replace(/[ \t]*(\n+)[ \t]*/g, '$1');
   resultat = majusculesApresPonctuation(resultat);
