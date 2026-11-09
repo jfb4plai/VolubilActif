@@ -61,7 +61,8 @@ function corrigerEspaces(texte) {
   let resultat = texte;
   // Pas d'espace avant , et . ; un espace apres si suivi d'un caractere.
   // Exceptions : pas d'espace au sein d'un nombre ("3,5") ni de "...".
-  resultat = resultat.replace(/\s+([.,])/g, '$1');
+  // [ \t] et non \s : un saut de ligne dicte ne doit pas etre avale.
+  resultat = resultat.replace(/[ \t]+([.,])/g, '$1');
   resultat = resultat.replace(/([.,])(?=[^\s.,\d])/g, '$1 ');
   // Espace simple acceptee avant ?!;: (convention francaise simplifiee).
   resultat = resultat.replace(/\s*([?!;:])/g, ' $1');
@@ -109,11 +110,13 @@ const PONCTUATION_DICTEE = [
   [/\bpoint\s+d[’']interrogation\b/gi, '?'],
   [/\bpoint\s+d[’']exclamation\b/gi, '!'],
   [/\bdeux[\s-]+points\b/gi, ':'],
-  [/\bnouveau\s+paragraphe\b/gi, '\n\n'],
+  // Whisper ajoute souvent une virgule ou un point apres la commande
+  // ("A la ligne, ...") : on l'absorbe, sinon il se retrouve en debut de ligne.
+  [/\bnouveau\s+paragraphe\b[.,;]?/gi, '\n\n'],
   // \b ne fonctionne pas devant un caractere accentue ("à") : on ancre sur
   // le debut de texte ou un blanc, consomme avec le saut de ligne.
-  [/(^|\s)[aà]\s+la\s+ligne\b/gi, '\n'],
-  [/\bnouvelle\s+ligne\b/gi, '\n'],
+  [/(^|\s)[aà]\s+la\s+ligne\b[.,;]?/gi, '\n'],
+  [/\bnouvelle\s+ligne\b[.,;]?/gi, '\n'],
   [/\bouvrez?\s+(?:les\s+)?guillemets\b/gi, '«'],
   [/\bfermez?\s+(?:les\s+)?guillemets\b/gi, '»'],
   [/\bouvrez?\s+(?:la\s+)?parenth[eè]se\b/gi, '('],
