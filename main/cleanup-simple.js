@@ -157,6 +157,8 @@ function appliquerPonctuationDictee(texte) {
     resultat = resultat.replace(motif, remplacement);
   }
   resultat = convertirPointDicte(resultat);
+  // "trouver. Point" : Whisper a deja mis un point, on n'en garde qu'un.
+  resultat = resultat.replace(/([.!?])[ \t]+\.(?=\s|$)/g, '$1');
   // Pas d'espaces residuels autour des sauts de ligne inseres.
   resultat = resultat.replace(/[ \t]*(\n+)[ \t]*/g, '$1');
   resultat = majusculesApresPonctuation(resultat);

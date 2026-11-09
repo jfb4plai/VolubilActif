@@ -117,7 +117,7 @@ function reponseAberrante(reponse, texteEntree) {
 
 // Point d'entree : tente le nettoyage ameliore, retombe sur le nettoyage
 // simple en cas de probleme. Retourne { texte, modeUtilise }.
-async function nettoyerAmeliore(texteBrut, settings, formesCorrectes) {
+async function nettoyerAmelioreUnique(texteBrut, settings, formesCorrectes) {
   const texteSimple = nettoyerSimple(texteBrut);
 
   if (settings.mode !== 'ameliore' && settings.mode !== 'improved') {
@@ -160,6 +160,25 @@ async function nettoyerAmeliore(texteBrut, settings, formesCorrectes) {
   } catch (err) {
     return { texte: texteSimple, modeUtilise: 'simple' };
   }
+}
+
+// Le modele fusionne les lignes (il remplace un saut de ligne par ". ") : les
+// sauts de ligne dictes ("a la ligne") sont donc mis de cote avant l'appel,
+// chaque ligne est nettoyee a part, puis les sauts de ligne sont remis tels quels.
+async function nettoyerAmeliore(texteBrut, settings, formesCorrectes) {
+  if (!/\n/.test(texteBrut)) return nettoyerAmelioreUnique(texteBrut, settings, formesCorrectes);
+  let texte = '';
+  let modeUtilise = 'simple';
+  for (const morceau of texteBrut.split(/(\n+)/)) {
+    if (!morceau.trim()) {
+      texte += morceau;
+      continue;
+    }
+    const r = await nettoyerAmelioreUnique(morceau, settings, formesCorrectes);
+    texte += r.texte;
+    if (r.modeUtilise === 'ameliore') modeUtilise = 'ameliore';
+  }
+  return { texte, modeUtilise };
 }
 
 module.exports = { detecterOllama, nettoyerAmeliore, prechauffer, construirePrompt, reponseAberrante };
