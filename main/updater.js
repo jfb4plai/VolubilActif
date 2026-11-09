@@ -11,7 +11,17 @@ const { dialog } = require('electron');
 
 const INTERVALLE_VERIFICATION_MS = 4 * 60 * 60 * 1000; // 4 heures
 
+let initialise = false;
+
+// Verification a la demande (bouton A propos, second lancement de l'app).
+// Sans effet avant l'initialisation (app non empaquetee).
+function verifierMaintenant() {
+  if (!initialise) return;
+  autoUpdater.checkForUpdates().catch(() => {});
+}
+
 function initialiserMiseAJour(onEtat) {
+  initialise = true;
   autoUpdater.autoDownload = true;
   autoUpdater.autoInstallOnAppQuit = true;
 
@@ -54,4 +64,4 @@ function initialiserMiseAJour(onEtat) {
   }, INTERVALLE_VERIFICATION_MS);
 }
 
-module.exports = { initialiserMiseAJour };
+module.exports = { initialiserMiseAJour, verifierMaintenant };

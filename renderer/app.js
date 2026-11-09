@@ -467,6 +467,10 @@ if (window.volubil.getDemarrageWindows) {
 if (window.volubil.getEtatMiseAJour) {
   window.volubil.getEtatMiseAJour().then(afficherStatutMiseAJour);
   window.volubil.onEtatMiseAJour(afficherStatutMiseAJour);
+  document.getElementById('btn-verifier-maj').addEventListener('click', () => {
+    afficherStatutMiseAJour({ etat: 'verification' });
+    window.volubil.verifierMiseAJour();
+  });
 }
 
 // ---------------------------------------------------------------------------

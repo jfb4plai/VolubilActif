@@ -50,6 +50,7 @@ contextBridge.exposeInMainWorld('volubil', {
 
   // Mise a jour automatique.
   getEtatMiseAJour: () => ipcRenderer.invoke('update:get-status'),
+  verifierMiseAJour: () => ipcRenderer.invoke('update:check'),
   getVersionApp: () => ipcRenderer.invoke('app:get-version'),
   getDemarrageWindows: () => ipcRenderer.invoke('autostart:get'),
   setDemarrageWindows: (actif) => ipcRenderer.invoke('autostart:set', actif),

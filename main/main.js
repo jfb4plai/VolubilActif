@@ -23,7 +23,7 @@ const whisper = require('./whisper');
 const { nettoyerSimple, appliquerPonctuationDictee, retirerHallucinations } = require('./cleanup-simple');
 const holdToTalk = require('./hold-to-talk');
 const autostart = require('./autostart');
-const { initialiserMiseAJour } = require('./updater');
+const { initialiserMiseAJour, verifierMaintenant } = require('./updater');
 const { nettoyerAmeliore, detecterOllama, prechauffer } = require('./ollama');
 const { insererTexte } = require('./inserter');
 const recorderBridge = require('./recorder-bridge');
@@ -711,6 +711,7 @@ function enregistrerGestionnairesIpc() {
   });
 
   ipcMain.handle('update:get-status', () => dernierEtatMiseAJour);
+  ipcMain.handle('update:check', () => verifierMaintenant());
   ipcMain.handle('app:get-version', () => app.getVersion());
   ipcMain.handle('autostart:get', () => autostart.lire(app));
   ipcMain.handle('autostart:set', (_event, actif) => autostart.ecrire(app, actif));
@@ -864,6 +865,8 @@ function enregistrerGestionnairesIpc() {
 
 app.on('second-instance', () => {
   creerFenetrePrincipale();
+  // Relancer l'app deja ouverte dans le tray cherche aussi une mise a jour.
+  verifierMaintenant();
 });
 
 app.whenReady().then(async () => {
